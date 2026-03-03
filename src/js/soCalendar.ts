@@ -1,24 +1,21 @@
-type dayFormat = "narrow" | "short" | "long";
+type TargetKind = 'date' | 'day' | 'month' | 'year';
+type DayFormat = "narrow" | "short" | "long";
 type MonthFormat = "short" | "long";
 
+const targetMap: Record<string, TargetKind> = {
+  socalendarTarget: 'date',
+  socalendarTargetDay: 'day',
+  socalendarTargetMonth: 'month',
+  socalendarTargetYear: 'year'
+};
+
 interface SoCalendarOptions {
-  iconPreviousMonth?: string;
-  iconNextMonth?: string;
-  iconPreviousYear?: string;
-  iconNextYear?: string;
-  iconEdit?: string;
-  iconBack?: string;
-  iconToday?: string;
-  iconCancel?: string;
-  iconConfirm?: string;
-  iconPreviousDecade?: string;
-  iconNextDecade?: string;
   locale?: string;
   minDate?: Date;
   maxDate?: Date;
   selector?: string;
   dateFormat?: string;
-  weekStartsOnMonday?: boolean;
+  firstDay?: number;
 }
 
 export default class SoCalendar {
@@ -40,20 +37,19 @@ export default class SoCalendar {
   private confirmBtn!: HTMLButtonElement;
   private targetElement!: HTMLInputElement
 
-  // TODO: Look to move these somewhere else
-  private iconPreviousMonth!: string;
-  private iconNextMonth!: string;
-  private iconPreviousYear!: string;
-  private iconNextYear!: string;
-  private iconEdit!: string;
-  private iconBack!: string;
-  private iconToday!: string;
-  private iconCancel!: string;
-  private iconConfirm!: string;
-  private iconPreviousDecade!: string;
-  private iconNextDecade!: string;
+  private iconPreviousMonth: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>`;
+  private iconNextMonth: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>`;
+  private iconPreviousYear: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M197.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L123.31,128ZM72,40a8,8,0,0,0-8,8V208a8,8,0,0,0,16,0V48A8,8,0,0,0,72,40Z"></path></svg>`;
+  private iconNextYear: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M149.66,122.34a8,8,0,0,1,0,11.32l-80,80a8,8,0,0,1-11.32-11.32L132.69,128,58.34,53.66A8,8,0,0,1,69.66,42.34ZM184,40a8,8,0,0,0-8,8V208a8,8,0,0,0,16,0V48A8,8,0,0,0,184,40Z"></path></svg>`;
+  private iconEdit: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path></svg>`;
+  private iconBack: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>`;
+  private iconToday: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-64-56a16,16,0,1,1-16-16A16,16,0,0,1,144,152Z"></path></svg>`;
+  private iconCancel: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>`;
+  private iconConfirm: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>`;
+  private iconPreviousDecade: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M176,128a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,128Zm56,0A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>`;
+  private iconNextDecade: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a8,8,0,0,1-8,8H136v32a8,8,0,0,1-16,0V136H88a8,8,0,0,1,0-16h32V88a8,8,0,0,1,16,0v32h32A8,8,0,0,1,176,128Z"></path></svg>`;
 
-  private locale?: string;
+  private locale!: string;
   private date: Date = new Date();
   private today: Date = new Date();
   private referenceDate: Date = new Date(1970, 0, 4);
@@ -64,107 +60,338 @@ export default class SoCalendar {
   private month: number = new Date().getMonth();
   private day: number = new Date().getDay();
   private selector: string = '.date-picker';
-  private dateFormat?: string;
-  private weekStartsOnMonday?: boolean;
-  private dateRestrictions: RegExp = /[0-9\/-]/g;
+  private dateFormat!: string;
+  private firstDay?: number;
+  private dateRestrictions: RegExp = /^[0-9/-]+$/;
+
+  private static shared: SoCalendar | null = null;
+  private readonly perTarget = new WeakMap<HTMLInputElement, Partial<SoCalendarOptions>>();
+  private readonly defaults!: Readonly<Required<SoCalendarOptions>>;
 
   private static readonly DEFAULTS: Required<SoCalendarOptions> = {
-    iconPreviousMonth: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>`,
-    iconNextMonth: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>`,
-    iconPreviousYear: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M197.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L123.31,128ZM72,40a8,8,0,0,0-8,8V208a8,8,0,0,0,16,0V48A8,8,0,0,0,72,40Z"></path></svg>`,
-    iconNextYear: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M149.66,122.34a8,8,0,0,1,0,11.32l-80,80a8,8,0,0,1-11.32-11.32L132.69,128,58.34,53.66A8,8,0,0,1,69.66,42.34ZM184,40a8,8,0,0,0-8,8V208a8,8,0,0,0,16,0V48A8,8,0,0,0,184,40Z"></path></svg>`,
-    iconEdit: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path></svg>`,
-    iconBack: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>`,
-    iconToday: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-64-56a16,16,0,1,1-16-16A16,16,0,0,1,144,152Z"></path></svg>`,
-    iconCancel: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>`,
-    iconConfirm: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>`,
-    iconPreviousDecade: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M176,128a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,128Zm56,0A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>`,
-    iconNextDecade: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a8,8,0,0,1-8,8H136v32a8,8,0,0,1-16,0V136H88a8,8,0,0,1,0-16h32V88a8,8,0,0,1,16,0v32h32A8,8,0,0,1,176,128Z"></path></svg>`,
     selector: '.date-picker',
-    locale: 'en-GB',
+    locale: navigator.languages?.[0] || navigator.language || "en-EN",
     minDate: undefined as unknown as Date,
     maxDate: undefined as unknown as Date,
     dateFormat: 'DD/MM/YYYY',
-    weekStartsOnMonday: true,
+    firstDay: 1
   };
 
-  constructor(options: SoCalendarOptions = {}) {
-    const config = { ...SoCalendar.DEFAULTS, ...options };
-    Object.assign(this, config);
-
-    // Generate the week days based on the locale
-		this.generateWeekDays();
-
-		const dialog = document.createElement('dialog');
-		dialog.id = "soCalendar";
-		dialog.classList.add('socalendar');
-    dialog.dataset.socalendarView = 'date';
-    dialog.innerHTML = ` 
-      <div class="socalendar-inner">
-        <div class="socalendar-row">
-          <div class="socalendar-label-prev">
-            <button id="soCalendar-back" class="socalendar-button socalendar-back" type="button">${this.iconBack}</button>
-            <button id="soCalendar-prev-year" class="socalendar-button socalendar-prev-year" type="button">${this.iconPreviousYear}</button>
-            <button id="soCalendar-prev-month" class="socalendar-button socalendar-prev-month" type="button">${this.iconPreviousMonth}</button>
-          </div>
-          <div class="socalendar-label">
-            <button id="soCalendar-label-month" class="socalendar-button-label socalendar-label-month" type="button">
-              <span data-before="${this.getMonthName(this.date.getMonth()-1, "short")}" data-after="${this.getMonthName(this.date.getMonth()+1, "short")}">${this.getMonthName(this.date.getMonth(), "short")}</span>
-            </button>
-            <button id="soCalendar-label-year" class="socalendar-button-label socalendar-label-year" type="button">
-              <span data-before="${this.year-1}" data-after="${this.year+1}">${this.year}</span>
-            </button>
-            </div>
-            <div class="socalendar-label-next">
-            <button id="soCalendar-edit" class="socalendar-button socalendar-edit" type="button">${this.iconEdit}</button>
-            <button id="soCalendar-next-month" class="socalendar-button socalendar-next-month" type="button">${this.iconNextMonth}</button>
-            <button id="soCalendar-next-year" class="socalendar-button socalendar-next-year" type="button">${this.iconNextYear}</button>
-          </div>
-        </div>
-        <div class="socalendar-content-wrapper">
-          <div id="soCalendar-content" class="socalendar-content-inner" aria-live="polite">
-            <div id="soCalendar-content-prev" class="socalendar-content"></div>
-            <div id="soCalendar-content-current" class="socalendar-content"></div>
-            <div id="soCalendar-content-next" class="socalendar-content"></div>
-          </div>
-        </div>
-        <div id="soCalendar-footer" class="socalendar-row">
-          <button id="soCalendar-cancel" class="socalendar-button socalendar-cancel" type="button">${this.iconCancel}</button>
-          <button id="soCalendar-today" class="socalendar-button socalendar-today" type="button" disabled>${this.iconToday}</button>
-          <button id="soCalendar-confirm" class="socalendar-button socalendar-confirm" type="button">${this.iconConfirm}</button>
-        </div>
-      </div>`;
-    document.body.appendChild(dialog);
-    this.dialog = dialog;
-    this.content = dialog.querySelector("#soCalendar-content")!;
-    this.contentPrev = dialog.querySelector("#soCalendar-content-prev")!;
-    this.contentCurrent = dialog.querySelector("#soCalendar-content-current")!;
-    this.contentNext = dialog.querySelector("#soCalendar-content-next")!;
-    this.monthLabel = dialog.querySelector("#soCalendar-label-month")!;
-    this.yearLabel = dialog.querySelector("#soCalendar-label-year")!;
-    this.todayBtn = dialog.querySelector("#soCalendar-today")!;
-    this.prevMonthBtn = dialog.querySelector("#soCalendar-prev-month")!;
-    this.nextMonthBtn = dialog.querySelector("#soCalendar-next-month")!;
-    this.prevYearBtn = dialog.querySelector("#soCalendar-prev-year")!;
-    this.nextYearBtn = dialog.querySelector("#soCalendar-next-year")!;
-    this.backBtn = dialog.querySelector("#soCalendar-back")!;
-    this.editBtn = dialog.querySelector("#soCalendar-edit")!;
-    this.cancelBtn = dialog.querySelector("#soCalendar-cancel")!;
-    this.confirmBtn = dialog.querySelector("#soCalendar-confirm")!;
-    this.addListeners();
+  private configFor(target: HTMLInputElement): Required<SoCalendarOptions> {
+    const overrides = this.perTarget.get(target) ?? {};
+    return { ...this.defaults, ...overrides };
   }
 
+  public init(selector: string = this.defaults.selector, options: SoCalendarOptions = {}) {
+    const targetElements = document.querySelectorAll<HTMLInputElement>(selector);
+
+    // Validate set options
+    if (options.minDate instanceof Date) options.minDate.setHours(0, 0, 0, 0);
+    if (options.maxDate instanceof Date) options.maxDate.setHours(0, 0, 0, 0);
+    if (options.dateFormat) this.dateFormat = options.dateFormat;
+    
+    targetElements.forEach((element) => {
+
+      // Save target element options
+      const { selector: _s, ...rest } = options;
+      this.perTarget.set(element, rest);
+
+      // If element is a button, check for target inputs and add masks to inputs
+      if (element instanceof HTMLButtonElement) {
+        Object.entries(element.dataset).forEach(([key, value]) => {
+          if (!value) return;
+          const type = targetMap[key];
+          if (type !== undefined) {
+            const target = document.getElementById(value);
+            if (target && target instanceof HTMLInputElement) {
+              this.watchInput(target, type);
+            } else {
+              console.log(`[soCalendar] Target element cannot be found "#${value}".`);
+            }
+          }
+        });
+      } else if (element instanceof HTMLInputElement) {
+        // Add watcher to element
+        this.watchInput(element, 'date');
+      }
+
+      //////////////////////////////////////////////////////////////////////////
+      // TODO: Here I need to detect date parts :/
+      //////////////////////////////////////////////////////////////////////////
+
+      element.addEventListener('click', (event) => {
+        const element = event.currentTarget as HTMLInputElement | HTMLButtonElement;
+        if (element instanceof HTMLButtonElement && element.dataset.socalendarTarget) {
+          const target = document.getElementById(element.dataset.socalendarTarget);
+          if (target instanceof HTMLInputElement) {
+            target.classList.add('socalendar-target');
+            this.targetElement = target;
+          } else {
+            console.log(`[soCalendar] Target element with id "${element.dataset.socalendarTarget}" not found or not an input`);
+          }
+        } else if (element instanceof HTMLInputElement) {
+          element.classList.add('socalendar-target');
+          this.targetElement = element;
+        } else {
+          console.log(`[soCalendar] Button element missing data-socalendar-target attribute for target element.`);
+          return;
+        }
+
+        const cfg = this.configFor(this.targetElement);
+        this.locale = cfg.locale;
+        this.dateFormat = cfg.dateFormat;
+        this.firstDay = cfg.firstDay;
+        this.minDate = cfg.minDate instanceof Date ? cfg.minDate : false;
+        this.maxDate = cfg.maxDate instanceof Date ? cfg.maxDate : false;
+
+        // Check target to see if `data-min-date` is set
+        if (!(this.minDate instanceof Date)) {
+          if (this.targetElement.dataset.minDate) {
+              this.minDate = this.parseDateString(this.targetElement.dataset.minDate);
+          } else {
+            this.minDate = false;
+          }
+        }
+
+        // Check target to see if `data-max-date` is set
+        if (!(this.maxDate instanceof Date)) {
+          if (this.targetElement.dataset.maxDate) {
+            this.maxDate = this.parseDateString(this.targetElement.dataset.maxDate);
+          } else {
+            this.maxDate = false;
+          }
+        }
+
+        // If `data-date-format` is set, try and set locale
+        if (this.targetElement.dataset.dateFormat) {
+          this.dateFormat = this.targetElement.dataset.dateFormat;
+        }
+
+        // If `data-locale` is set, try and set locale
+        if (this.targetElement.dataset.locale) {
+          this.setLocale(this.targetElement.dataset.locale);
+        } else {
+          this.setLocale(this.locale);
+        }
+
+        // Work out the date they have selected already and update our date
+        if (this.targetElement.type === 'date' && this.targetElement.value.trim() != '') {
+          this.date = new Date(this.targetElement.value);
+        } else {
+          // TODO : ADD MASK
+          if (!this.setDateString(this.targetElement.value)) {
+            this.date = this.today;
+          }
+        }
+
+        this.year = this.date.getFullYear();
+        this.month = this.date.getMonth();
+        this.day = this.date.getDate();
+        this.generateDatePicker();
+        this.updateMonthLabel();
+        this.updateYearLabel();
+        this.dialog.showModal();
+      });
+    });
+  }
+
+  constructor() {
+    if (SoCalendar.shared) {
+      return SoCalendar.shared;
+    }
+
+    const config = { ...SoCalendar.DEFAULTS};
+    this.defaults = Object.freeze(config);
+    Object.assign(this, config);
+
+    SoCalendar.shared = this;
+    this.start();
+  }
+
+  private start() {
+    const existing = document.getElementById("soCalendar");
+    if (existing instanceof HTMLDialogElement) {
+      this.dialog = existing;
+    } else {
+      const dialog = document.createElement('dialog');
+      dialog.id = "soCalendar";
+      dialog.classList.add('socalendar');
+      dialog.dataset.socalendarView = 'date';
+      dialog.innerHTML = `
+        <div class="socalendar-inner">
+          <div class="socalendar-row">
+            <div class="socalendar-label-prev">
+              <button id="soCalendar-back" class="socalendar-button socalendar-back" type="button">${this.iconBack}</button>
+              <button id="soCalendar-prev-year" class="socalendar-button socalendar-prev-year" type="button">${this.iconPreviousYear}</button>
+              <button id="soCalendar-prev-month" class="socalendar-button socalendar-prev-month" type="button">${this.iconPreviousMonth}</button>
+            </div>
+            <div class="socalendar-label">
+              <button id="soCalendar-label-month" class="socalendar-button-label socalendar-label-month" type="button">
+                <span data-before="${this.getMonthName(this.date.getMonth()-1, "short")}" data-after="${this.getMonthName(this.date.getMonth()+1, "short")}">${this.getMonthName(this.date.getMonth(), "short")}</span>
+              </button>
+              <button id="soCalendar-label-year" class="socalendar-button-label socalendar-label-year" type="button">
+                <span data-before="${this.year-1}" data-after="${this.year+1}">${this.year}</span>
+              </button>
+              </div>
+              <div class="socalendar-label-next">
+              <button id="soCalendar-edit" class="socalendar-button socalendar-edit" type="button">${this.iconEdit}</button>
+              <button id="soCalendar-next-month" class="socalendar-button socalendar-next-month" type="button">${this.iconNextMonth}</button>
+              <button id="soCalendar-next-year" class="socalendar-button socalendar-next-year" type="button">${this.iconNextYear}</button>
+            </div>
+          </div>
+          <div class="socalendar-content-wrapper">
+            <div id="soCalendar-content" class="socalendar-content-inner" aria-live="polite">
+              <div id="soCalendar-content-prev" class="socalendar-content"></div>
+              <div id="soCalendar-content-current" class="socalendar-content"></div>
+              <div id="soCalendar-content-next" class="socalendar-content"></div>
+            </div>
+          </div>
+          <div id="soCalendar-footer" class="socalendar-row">
+            <button id="soCalendar-cancel" class="socalendar-button socalendar-cancel" type="button">${this.iconCancel}</button>
+            <button id="soCalendar-today" class="socalendar-button socalendar-today" type="button" disabled>${this.iconToday}</button>
+            <button id="soCalendar-confirm" class="socalendar-button socalendar-confirm" type="button">${this.iconConfirm}</button>
+          </div>
+        </div>`;
+      document.body.appendChild(dialog);
+      this.dialog = dialog;
+      this.content = dialog.querySelector("#soCalendar-content")!;
+      this.contentPrev = dialog.querySelector("#soCalendar-content-prev")!;
+      this.contentCurrent = dialog.querySelector("#soCalendar-content-current")!;
+      this.contentNext = dialog.querySelector("#soCalendar-content-next")!;
+      this.monthLabel = dialog.querySelector("#soCalendar-label-month")!;
+      this.yearLabel = dialog.querySelector("#soCalendar-label-year")!;
+      this.todayBtn = dialog.querySelector("#soCalendar-today")!;
+      this.prevMonthBtn = dialog.querySelector("#soCalendar-prev-month")!;
+      this.nextMonthBtn = dialog.querySelector("#soCalendar-next-month")!;
+      this.prevYearBtn = dialog.querySelector("#soCalendar-prev-year")!;
+      this.nextYearBtn = dialog.querySelector("#soCalendar-next-year")!;
+      this.backBtn = dialog.querySelector("#soCalendar-back")!;
+      this.editBtn = dialog.querySelector("#soCalendar-edit")!;
+      this.cancelBtn = dialog.querySelector("#soCalendar-cancel")!;
+      this.confirmBtn = dialog.querySelector("#soCalendar-confirm")!;
+    
+      // Detect click outside date picker and close
+      this.dialog.addEventListener('click', (event) => {
+        const rect = this.dialog.getBoundingClientRect();
+
+        const isInDialog =
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width;
+
+        if (!isInDialog) {
+          this.closeCalendar();
+        }
+      });
+
+      // Transitions
+      this.content.addEventListener('transitionend', (e) => {
+        if (e.target !== this.content) return;
+        this.content.classList.remove('next', 'prev');
+        this.generateDatePicker();
+      }, );
+
+      // Trigger animation for month label
+      this.monthLabel.addEventListener('transitionend', () => {
+        this.monthLabel.classList.remove('next', 'prev');
+        this.updateMonthLabel();
+      });
+
+      // Trigger animation for month label
+      this.yearLabel.addEventListener('transitionend', () => {
+        this.yearLabel.classList.remove('next', 'prev');
+        this.updateYearLabel()
+      });
+
+      // Back button show when picking a month or year
+      this.backBtn.addEventListener('click', () => {
+        this.generateDatePicker();
+      });
+      
+      // When click to edit date, show date input
+      this.editBtn.addEventListener('click', () => {
+        this.generateDateInput();
+      });
+      
+      // Go to previous year
+      this.prevYearBtn.addEventListener('click', () => { 
+        this.updateYear(-1) 
+      });
+      
+      // Go to previous month
+      this.prevMonthBtn.addEventListener('click', () => { 
+        this.updateMonth(-1) 
+      });
+      
+      // Go to next month
+      this.nextMonthBtn.addEventListener('click', () => { 
+        this.updateMonth(1) 
+      });
+      
+      // Go to next year
+      this.nextYearBtn.addEventListener('click', () => { 
+        this.updateYear(1); 
+      });
+      
+      // Close calendar
+      this.cancelBtn.addEventListener('click', () => { 
+        this.closeCalendar() 
+      });
+      
+      // Confirm calendar selection TODO
+      this.confirmBtn.addEventListener('click', () => { 
+        this.closeCalendar() 
+      });
+      
+      // Update calendar picker to today
+      this.todayBtn.addEventListener('click', () => {
+        // TODO, this needs to transition...
+        this.year = this.today.getFullYear();
+        this.month = this.today.getMonth();
+        this.day = this.today.getDate(); 
+        this.updateYearLabel();
+        this.updateMonthLabel();
+        this.generateDatePicker();
+      });
+      
+      // Open month picker
+      this.monthLabel.addEventListener('click', () => { 
+        this.generateMonthPicker();
+      });
+      
+      // Open year picker
+      this.yearLabel.addEventListener('click', () => {
+        this.generateYearPicker();
+      });
+    }
+  }
+
+  /**
+   * Gets the month name based on the current locale and in the format selected
+   * 
+   * @param month - the month as a number (0-11)
+   * @param format - the format it should be returned in ("short" | "long")
+   * @returns string containing the month name
+   */
 	private getMonthName(month: number, format: MonthFormat = 'short'): string {
 		return new Intl.DateTimeFormat(this.locale, {
 			month: format,
 		}).format(new Date(2000, month, 1));
 	}
 
-  private generateWeekDays(format: dayFormat = 'narrow') {
+  /**
+   * Generates the weekday labels based on the current locale and configured 
+   * first day of the week populating this.weekDays
+   *
+   * @param format - The weekday display format ('narrow', 'short', or 'long').
+   */
+  private generateWeekDays(format: DayFormat = 'narrow'): void {
     this.weekDays = [];
+    const jsFirstDay = this.firstDay === 7 ? 0 : this.firstDay!;
     for (let i = 0; i < 7; i++) {
-      let dayOffset = i;
-      if (this.weekStartsOnMonday) dayOffset = (i + 1) % 7;
+      // Rotate days based on first day of week
+      const dayOffset = (jsFirstDay + i) % 7;
       const date = new Date(this.referenceDate);
       date.setDate(this.referenceDate.getDate() + dayOffset);
       this.weekDays.push([
@@ -174,6 +401,13 @@ export default class SoCalendar {
     }
   }
 
+  /**
+   * Gets the day of the week name from the day number in <abbr> tag
+   * 
+   * @param month - the month as a number (0-6)
+   * @param format - the format it should be returned in ("narrow" | "short" | "long")
+   * @returns string containing the day name
+   */
 	private getWeekDay(day: number): string {
     const [full, abbr] = this.weekDays[day];
     return `<abbr title="${abbr}">${full}</abbr>`;
@@ -183,7 +417,7 @@ export default class SoCalendar {
     return new Date(year, month + 1, 0).getDate();
   }
 
-  updateMonthLabel() {
+  private updateMonthLabel() {
     if (this.monthLabel instanceof HTMLButtonElement) this.monthLabel.innerHTML = `<span 
       data-before="${this.getMonthName(this.month-1, "short")}" 
       data-after="${this.getMonthName(this.month+1, "short")}">
@@ -191,7 +425,7 @@ export default class SoCalendar {
       </span>`;
   }
 
-  updateMonth(change: number): void {
+  private updateMonth(change: number): void {
     const newDate = new Date(this.year, this.month + change, this.day);
     const classToggle = change > 0 ? 'next' : 'prev' ;
     if (this.minDate instanceof Date && newDate < this.minDate || this.maxDate instanceof Date && newDate > this.maxDate) {
@@ -211,7 +445,7 @@ export default class SoCalendar {
     this.monthLabel.classList.add(classToggle);
   }
 
-  updateYearLabel() {
+  private updateYearLabel() {
     if (this.yearLabel instanceof HTMLButtonElement) this.yearLabel.innerHTML = `<span data-before="${this.year-1}" data-after="${this.year+1}">${this.year}</span>`;
   }
 
@@ -307,159 +541,41 @@ export default class SoCalendar {
     ) {
       return false;
     }
-
     return date;
   }
 
-	addListeners(): void {
-    const inputElements = document.querySelectorAll(this.selector);
-    inputElements.forEach((input) => {
-      input.addEventListener('click', (event) => {
-        const element = event.currentTarget as HTMLInputElement | HTMLButtonElement;
-        if (element instanceof HTMLButtonElement && element.dataset.socalendarTarget) {
-          const target = document.getElementById(element.dataset.socalendarTarget);
-          if (target instanceof HTMLInputElement) {
-            target.classList.add('socalendar-target');
-            this.targetElement = target;
-          } else {
-            console.log(`[soCalendar] Target element with id "${element.dataset.socalendarTarget}" not found or not an input`);
-          }
-        } else if (element instanceof HTMLInputElement) {
-          input.classList.add('socalendar-target');
-          this.targetElement = element;
-        } else {
-            console.log(`[soCalendar] Button element missing data-socalendar-target attribute for target element.`);
-            return;
+  private watchInput(target: HTMLInputElement, type: TargetKind = 'date'): void {
+    if (target instanceof HTMLInputElement ) {
+      target.inputMode = 'numeric';
+      target.type = 'text';
+      if (type !== 'date') {
+        switch (type) {
+          case 'day':
+          case 'month':
+            target.maxLength = 2;
+            target.pattern = '[0-9]{2}';
+          case 'year':
+            target.maxLength = 4;
+            target.pattern = '[0-9]{4}';
         }
-
-        // Check target to see if any options are set
-        if (this.targetElement.dataset.minDate) {
-            this.minDate = this.parseDateString(this.targetElement.dataset.minDate);
-        } else {
-          this.minDate = false;
-        }
-
-        if (this.targetElement.dataset.maxDate) {
-          this.maxDate = this.parseDateString(this.targetElement.dataset.maxDate);
-        } else {
-          this.maxDate = false;
-        }
-
-        // Work out the date they have selected already and update our date
-        if (this.targetElement.type === 'date' && this.targetElement.value.trim() != '') {
-          this.date = new Date(this.targetElement.value);
-        } else {
-          if (!this.setDateString(this.targetElement.value)) {
-            // TODO : ADD MASK
-            this.date = this.today;
-          }
-        }
-
-        this.year = this.date.getFullYear();
-        this.month = this.date.getMonth();
-        this.day = this.date.getDate();
-        this.generateDatePicker();
-        this.updateMonthLabel();
-        this.updateYearLabel();
-        this.dialog.showModal();
-      });
-    });
-
-    // Detect click outside date picker and close
-    this.dialog.addEventListener('click', (event) => {
-      const rect = this.dialog.getBoundingClientRect();
-
-      const isInDialog =
-        rect.top <= event.clientY &&
-        event.clientY <= rect.top + rect.height &&
-        rect.left <= event.clientX &&
-        event.clientX <= rect.left + rect.width;
-
-      if (!isInDialog) {
-        this.closeCalendar();
+      } else {
+        // This is a full date field based on `this.dateFormat`
+        target.maxLength = this.dateFormat.length;
+        target.placeholder = this.dateFormat;
+        target.pattern = '[0-9]{2,4}/[0-9]{2,4}/[0-9]{2,4}/'; // TODO Use this.dateRestrictions
       }
-    });
 
-    // Transitions
-    this.content.addEventListener('transitionend', (e) => {
-      if (e.target !== this.content) return;
-      this.content.classList.remove('next', 'prev');
-      this.generateDatePicker();
-    }, );
-
-    // Trigger animation for month label
-    this.monthLabel.addEventListener('transitionend', () => {
-      this.monthLabel.classList.remove('next', 'prev');
-      this.updateMonthLabel();
-    });
-
-    // Trigger animation for month label
-    this.yearLabel.addEventListener('transitionend', () => {
-      this.yearLabel.classList.remove('next', 'prev');
-      this.updateYearLabel()
-    });
-
-    // Back button show when picking a month or year
-    this.backBtn.addEventListener('click', () => {
-      this.generateDatePicker();
-    });
-    
-    // When click to edit date, show date input
-    this.editBtn.addEventListener('click', () => {
-      this.generateDateInput();
-    });
-    
-    // Go to previous year
-    this.prevYearBtn.addEventListener('click', () => { 
-      this.updateYear(-1) 
-    });
-    
-    // Go to previous month
-    this.prevMonthBtn.addEventListener('click', () => { 
-      this.updateMonth(-1) 
-    });
-    
-    // Go to next month
-    this.nextMonthBtn.addEventListener('click', () => { 
-      this.updateMonth(1) 
-    });
-    
-    // Go to next year
-    this.nextYearBtn.addEventListener('click', () => { 
-      this.updateYear(1); 
-    });
-    
-    // Close calendar
-    this.cancelBtn.addEventListener('click', () => { 
-      this.closeCalendar() 
-    });
-    
-    // Confirm calendar selection TODO
-    this.confirmBtn.addEventListener('click', () => { 
-      this.closeCalendar() 
-    });
-    
-    // Update calendar picker to today
-    this.todayBtn.addEventListener('click', () => {
-      // TODO, this needs to transition...
-      this.year = this.today.getFullYear();
-      this.month = this.today.getMonth();
-      this.day = this.today.getDate(); 
-      this.updateYearLabel();
-      this.updateMonthLabel();
-      this.generateDatePicker();
-    });
-    
-    // Open month picker
-    this.monthLabel.addEventListener('click', () => { 
-      this.generateMonthPicker();
-    });
-    
-    // Open year picker
-    this.yearLabel.addEventListener('click', () => {
-      console.log('year picker clicked')
-      this.generateYearPicker();
-    });
+      // Apply mask for `date` type
+      if (type === 'date') {
+        target.addEventListener('input', (e) => this.applyMask(e));
+        target.addEventListener('paste', (e) => this.applyMask(e));
+      }
+      
+      // Restrict character input 
+      target.addEventListener('keydown', (event: KeyboardEvent) => {
+        this.restrictCharacters(target, event);
+      });
+    }
   }
 
   private setDateString(value: string): boolean {
@@ -471,29 +587,91 @@ export default class SoCalendar {
     return false;
   }
 
-  private setDate(date: Date): void {
+  public setDate(date: Date): void {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
     if (this.targetElement.type === 'date') {
-      const yyyy = date.getFullYear();
-      const mm = String(date.getMonth() + 1).padStart(2, "0");
-      const dd = String(date.getDate()).padStart(2, "0");
       this.targetElement.value = `${yyyy}-${mm}-${dd}`;
     } else {
-      this.targetElement.value = date.toLocaleDateString(this.locale);
+      switch (this.dateFormat) {
+        case "DD/MM/YYYY":
+          this.targetElement.value = `${dd}/${mm}/${yyyy}`;
+          break;
+        case "MM/DD/YYYY":
+          this.targetElement.value = `${mm}/${dd}/${yyyy}`;
+          break;
+        default:
+          this.targetElement.value = `${yyyy}/${mm}/${dd}`;
+          break;
+      }
     }
     this.closeCalendar();
   }
 
-  closeCalendar(): void {
-    this.dialog.close();
+  private getRegionFromLocale(locale: string): string {
+    const parts = locale.split("-");
+    const region = parts.length >= 2 ? parts[1] : "";
+    return region.toUpperCase();
   }
 
-  isOpen(): boolean {
+  /**
+   * Sets the locale for the calendar which updates date style and language
+   * 
+   * @param locale string with locale value ('en-GB')
+   */
+  private setLocale(locale: string | null = null): void {
+    if (locale && Intl.DateTimeFormat.supportedLocalesOf([locale]).length > 0) {
+      try {
+        const loc = new Intl.Locale(locale) as any;
+        const weekInfo = loc.getWeekInfo();
+        this.firstDay = weekInfo.firstDay;
+      } catch {
+        const region = this.getRegionFromLocale(locale);
+        // Sunday-first is common in the US and a handful of places
+        const SUNDAY_FIRST = new Set([
+          "US", // United States
+          "CA", // Canada (commonly Sunday-first in many calendars)
+          "PH", // Philippines
+          "MX", // Mexico (often Sunday-first)
+          "CO", // Colombia (often Sunday-first)
+          "BR", // Brazil (often Sunday-first)
+          "AU", // Australia (mixed; many calendars show Monday, but Sunday is also common)
+          "NZ", // New Zealand (mixed)
+          "JP", // Japan (often Sunday-first)
+          "KR", // Korea (often Sunday-first)
+          "TW", // Taiwan
+          "HK", // Hong Kong
+        ]);
+
+        // Fallback detection
+        if (SUNDAY_FIRST.has(region) || locale.toLowerCase().startsWith("en-us")) {
+          this.firstDay = 7;
+        } else {
+          // If not able to detect, use the default
+          this.firstDay = SoCalendar.DEFAULTS.firstDay;
+        }
+      }
+      this.locale = locale;
+    } else {
+      if (locale) console.log(`[soCalendar] Cannot change locale as invalid value "${locale}".`);
+      this.locale = SoCalendar.DEFAULTS.locale;
+    }
+    this.generateWeekDays();
+  }
+
+  
+  private isOpen(): boolean {
     return (this.dialog && this.dialog.classList.contains('socalendar-loaded'));
   }
-
-  show(): void {
+  
+  public show(): void {
     if (this.isOpen()) return;
     this.dialog.classList.add('socalendar-loaded');
+  }
+  
+  public closeCalendar(): void {
+    this.dialog.close();
   }
 
   private toggleElements(ids: string[], hide: boolean = false, cssclass: string = 'socalendar-hidden'): void {
@@ -591,7 +769,6 @@ export default class SoCalendar {
     }
 
     dateConfirm.addEventListener('click', (event: MouseEvent) => {
-      alert("confirm");
       this.setDateString(dateInput.value);
       this.year = this.date.getFullYear();
       this.month = this.date.getMonth();
@@ -602,7 +779,6 @@ export default class SoCalendar {
     });
   }
 
-  
   private applyMask = (event: Event): void => {
     const confirm = document.getElementById('soCalendar-date-confirm') as HTMLButtonElement;
     const maskPattern = "00/00/0000";
@@ -730,7 +906,7 @@ export default class SoCalendar {
         this.generateYearPicker(decadeStart - 10);
       });
       yearPickerInner.classList.add('prev');
-    });
+    }, { once: true });
   
     nextDecade.addEventListener('click', () => {
       yearPickerInner.addEventListener('transitionend', () => {
@@ -739,7 +915,7 @@ export default class SoCalendar {
         this.generateYearPicker(decadeStart + 10);
       });
       yearPickerInner.classList.add('next');
-    });
+    }, { once: true });
     
     // Add button event listeners
     const calendarButtons = this.dialog.querySelectorAll<HTMLButtonElement>("#soCalendar button.socalendar-select-year");
@@ -791,10 +967,7 @@ export default class SoCalendar {
       button.addEventListener('click', (event) => {
         const button = event.currentTarget;
         if (button instanceof HTMLButtonElement) {
-          console.log('buttn ok');
-
-        const month = Number(button.dataset.month);
-          console.log(month);
+          const month = Number(button.dataset.month);
           if (month) {
             this.month = month;
             this.updateMonthLabel();
@@ -838,7 +1011,7 @@ export default class SoCalendar {
       const monthDays = this.daysInMonth(viewYear, viewMonth);
 
       let startDay = firstDayOfMonth.getDay();
-      if (this.weekStartsOnMonday) startDay = (startDay + 6) % 7;
+      if (this.firstDay === 1) startDay = (startDay + 6) % 7;
 
       const prevMonthDate = new Date(viewYear, viewMonth - 1, 1);
       const prevMonth = prevMonthDate.getMonth();
