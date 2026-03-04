@@ -13,8 +13,6 @@
 *******************************************************************************/
 .socalendar {
   --socalendar-bg-color: #fff;
-  --socalendar-border-radius-dialog: 20px;
-  --socalendar-border-radius-content: 6px;
   --socalendar-primary-color: #099ba4;
   --socalendar-primary-dark: #0c8086;
   --socalendar-primary-color-light: #E7F8F7;
@@ -25,21 +23,50 @@
   --socalendar-gray-color: #999;
   --socalendar-silver-color: #e4e7e7;
   --socalendar-backdrop: rgba(9, 155, 164, 0.25);
+  --socalendar-border-radius-dialog: 20px;
+  --socalendar-border-radius-content: 6px;
   --socalendar-transition-timing-big: 0.5s;
   --socalendar-transition-timing-small: 0.15s;
+  --socalendar-padding-large: 25px;
+  --socalendar-padding-small: 20px;
+  --socalendar-gap: 3px;
+  --width: 400px;
+  --socalendar-size: calc(var(--width) - (var(--socalendar-padding-large) * 2));
   background: var(--socalendar-bg-color);
   border-radius: var(--socalendar-border-radius-dialog);
   border: 0;
   box-shadow: 0 1em 5em rgba(0, 0, 0, 0.25);
   display: block;
-  margin: auto !important;
-  min-height: 440px;
-  padding: 25px;
+  padding: var(--socalendar-padding-large);
   position: fixed;
   transform: translate3d(0, 0, 0) scale(0.2);
   transition: all var(--socalendar-transition-timing-small) ease-out;
   visibility: hidden;
   z-index: 1001;
+  width: var(--width);
+}
+@media screen and (max-width: 379px) {
+  .socalendar {
+    --width: 100vw;
+    --socalendar-gap: 2px;
+    --socalendar-header-font-size: 18px;
+    --socalendar-padding-large: min(5vw, 20px);
+    --socalendar-border-radius-dialog: 12px;
+    --socalendar-border-radius-content: 6px;
+    --socalendar-header-font-size: 18px;
+    max-width: 100vw;
+    margin: auto 0;
+  }
+}
+@media screen and (min-width: 380px) {
+  .socalendar {
+    --width: 380px;
+    --socalendar-gap: 3px;
+    --socalendar-border-radius-dialog: 20px;
+    --socalendar-border-radius-content: 6px;
+    --socalendar-header-font-size: 22px;
+    margin: auto;
+  }
 }
 .socalendar::backdrop {
   background: var(--socalendar-backdrop);
@@ -62,7 +89,7 @@
   opacity: 1;
   visibility: visible;
   transform: translate3d(0, 0, 0) scale(1);
-  transition: all var(--socalendar-transition-timing-big) cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform var(--socalendar-transition-timing-big) cubic-bezier(0.23, 1, 0.32, 1);
 }
 .socalendar[open] .socalendar-inner {
   opacity: 1;
@@ -89,7 +116,7 @@
 .socalendar .socalendar-row {
   align-items: center;
   display: flex;
-  gap: 5px;
+  gap: var(--socalendar-gap);
   justify-content: space-between;
 }
 .socalendar .socalendar-label-prev,
@@ -113,6 +140,16 @@
   padding: 0;
   transition: all var(--socalendar-transition-timing-small) ease;
   will-change: color, opacity;
+}
+.socalendar button svg {
+  height: 28px;
+  width: 28px;
+}
+@media screen and (min-width: 400px) {
+  .socalendar button svg {
+    height: 32px;
+    width: 32px;
+  }
 }
 .socalendar button[disabled] {
   opacity: 0.33 !important;
@@ -220,14 +257,14 @@
   display: flex;
   flex-flow: row nowrap;
   flex-grow: 1;
-  font-size: 22px;
-  gap: 5px;
+  font-size: var(--socalendar-header-font-size);
+  gap: var(--socalendar-gap);
   justify-content: center;
   justify-self: stretch;
 }
 .socalendar .socalendar-label button {
   color: inherit;
-  font-size: 22px;
+  font-size: var(--socalendar-header-font-size);
   font-weight: 400;
   line-height: 1;
   margin: 0;
@@ -275,7 +312,7 @@
 }
 .socalendar .socalendar-content table td {
   text-align: center;
-  border: 1px solid var(--socalendar-white-color);
+  padding: 0 var(--socalendar-gap) var(--socalendar-gap) 0;
 }
 .socalendar .socalendar-content .socalendar-year-picker-container {
   width: 100%;
@@ -287,12 +324,12 @@
   padding: 0;
   display: flex;
   flex-flow: row wrap;
-  gap: 4px;
+  gap: var(--socalendar-gap);
   width: 100%;
 }
 .socalendar .socalendar-content .socalendar-month-picker li,
 .socalendar .socalendar-content .socalendar-year-picker li {
-  flex: 0 0 calc(33.333% - 4px);
+  flex: 0 0 calc(33.333% - var(--socalendar-gap));
   margin: 0;
   padding: 0;
 }
@@ -342,9 +379,9 @@
 }
 .socalendar .socalendar-content .socalendar-date-editor .socalendar-year-picker-label,
 .socalendar .socalendar-content .socalendar-year-picker-scroller .socalendar-year-picker-label {
-  font-size: 20px;
+  font-size: var(--socalendar-header-font-size);
   display: flex;
-  gap: 5px;
+  gap: var(--socalendar-gap);
   align-items: center;
 }
 .socalendar .socalendar-content .socalendar-date-editor .socalendar-year-picker-label .year-value,
@@ -419,10 +456,9 @@
   color: var(--socalendar-primary-color);
 }
 .socalendar .socalendar-content table.socalendar-date-picker button {
-  height: 3em;
-  line-height: 3;
+  height: calc(var(--socalendar-size) / 7 - var(--socalendar-gap));
   position: relative;
-  width: 3em;
+  width: calc(var(--socalendar-size) / 7 - var(--socalendar-gap));
 }
 .socalendar .socalendar-content table.socalendar-date-picker button[disabled] {
   background: var(--socalendar-silver-color);
@@ -444,7 +480,6 @@
 .socalendar .socalendar-content table.socalendar-date-picker button.is-today {
   background: var(--socalendar-white-color);
   box-shadow: 0 0 0 1px var(--socalendar-primary-color) inset;
-  line-height: 2.9;
 }
 .socalendar .socalendar-content table.socalendar-date-picker button.is-outside-month {
   background-image: repeating-linear-gradient(-45deg, #ddd, #ddd 1px, #fff 1px, #fff 5px);
