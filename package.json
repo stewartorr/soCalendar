@@ -34,7 +34,8 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite",
+    "vite": "vite",
+    "vite:build": "vite build",
     "preview": "vite preview",
     "build:css": "sass src/scss/socalendar.scss dist/css/socalendar.css --no-source-map",
     "build:css:min": "sass src/scss/socalendar.scss dist/css/socalendar.min.css --style=compressed --no-source-map",

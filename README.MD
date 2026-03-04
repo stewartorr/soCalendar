@@ -1,10 +1,10 @@
 # soCalendar
 
-![Figma](docs/figma-logo.svg) ![Sass](docs/sass-logo.svg) ![Typescript](docs/typescript-logo.svg)
+![Figma](docs/assets/figma-logo.svg) ![Sass](docs/assets/sass-logo.svg) ![Typescript](docs/assets/typescript-logo.svg)
 
 soCalendar is a beautiful & simple calendar date picker in TypeScript designed to be beautifully simple, intuitive and lightweight. It is build to be accessible and using modern semantic markup.
 
-![soCalendar Preview](docs/socalendar.png)
+![soCalendar Preview](docs/assets/socalendar.png)
 
 ## Demo
 
