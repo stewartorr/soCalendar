@@ -77,17 +77,39 @@ export default class SoCalendar {
     firstDay: 1
   };
 
+  constructor() {
+    if (SoCalendar.shared) {
+      return SoCalendar.shared;
+    }
+
+    const config = { ...SoCalendar.DEFAULTS};
+    this.defaults = Object.freeze(config);
+    Object.assign(this, config);
+
+    SoCalendar.shared = this;
+    this.start();
+  }
+
+  /**
+   * Gets config values for soCalendar Input
+   * @param target - the HTMLInputElement that contains the options
+   * @returns object containing key/value results
+   */
   private configFor(target: HTMLInputElement): Required<SoCalendarOptions> {
     const overrides = this.perTarget.get(target) ?? {};
     return { ...this.defaults, ...overrides };
   }
 
+  /**
+   * 
+   * @param selector (string) containing the selector - defaults to `.date-picker`
+   * @param options (SoCalendarOptions) containing any overrides for the options
+   */
   public init(selector: string = this.defaults.selector, options: SoCalendarOptions = {}) {
     const targetElements = document.querySelectorAll<HTMLInputElement>(selector);
 
-    // Validate set options
     if (options.minDate instanceof Date) options.minDate.setHours(0, 0, 0, 0);
-    if (options.maxDate instanceof Date) options.maxDate.setHours(0, 0, 0, 0);
+    if (options.maxDate instanceof Date) options.maxDate.setHours(0, 0, 0, 0);    // Validate set options
     if (options.dateFormat) this.dateFormat = options.dateFormat;
     
     targetElements.forEach((element) => {
@@ -195,19 +217,6 @@ export default class SoCalendar {
     });
   }
 
-  constructor() {
-    if (SoCalendar.shared) {
-      return SoCalendar.shared;
-    }
-
-    const config = { ...SoCalendar.DEFAULTS};
-    this.defaults = Object.freeze(config);
-    Object.assign(this, config);
-
-    SoCalendar.shared = this;
-    this.start();
-  }
-
   private start() {
     const existing = document.getElementById("soCalendar");
     if (existing instanceof HTMLDialogElement) {
@@ -271,7 +280,7 @@ export default class SoCalendar {
       this.confirmBtn = dialog.querySelector("#soCalendar-confirm")!;
     
       // Detect click outside date picker and close
-      this.dialog.addEventListener('click', (event) => {
+      this.dialog.addEventListener('mousedown', (event) => {
         const rect = this.dialog.getBoundingClientRect();
 
         const isInDialog =
@@ -388,9 +397,9 @@ export default class SoCalendar {
    */
   private generateWeekDays(format: DayFormat = 'narrow'): void {
     this.weekDays = [];
-    const jsFirstDay = this.firstDay === 7 ? 0 : this.firstDay!;
+    const firstDay = this.firstDay ?? this.defaults.firstDay;
+    const jsFirstDay = firstDay === 7 ? 0 : firstDay;
     for (let i = 0; i < 7; i++) {
-      // Rotate days based on first day of week
       const dayOffset = (jsFirstDay + i) % 7;
       const date = new Date(this.referenceDate);
       date.setDate(this.referenceDate.getDate() + dayOffset);
@@ -404,14 +413,13 @@ export default class SoCalendar {
   /**
    * Gets the day of the week name from the day number in <abbr> tag
    * 
-   * @param month - the month as a number (0-6)
-   * @param format - the format it should be returned in ("narrow" | "short" | "long")
+   * @param day - the day of the week as a number (0-6)
    * @returns string containing the day name
    */
-	private getWeekDay(day: number): string {
-    const [full, abbr] = this.weekDays[day];
-    return `<abbr title="${abbr}">${full}</abbr>`;
-	}
+  private getWeekDay(day: number): string {
+    const [label, full] = this.weekDays[day];
+    return `<abbr title="${full}">${label}</abbr>`;
+  }
 
   private daysInMonth(year: number, month: number): number {
     return new Date(year, month + 1, 0).getDate();
@@ -470,8 +478,8 @@ export default class SoCalendar {
     const min = this.minDate instanceof Date ? this.minDate : null;
     const max = this.maxDate instanceof Date ? this.maxDate : null;
 
-    const prevMonthTarget = new Date(this.year, this.month, 0); // 1st of prev month
-    const nextMonthTarget = new Date(this.year, this.month + 1, 1); // 1st of next month
+    const prevMonthTarget = new Date(this.year, this.month, 0); // Last day of prev month
+    const nextMonthTarget = new Date(this.year, this.month + 1, 1); // First day of next month
     const prevYearTarget  = new Date(this.year - 1, this.month, 1);
     const nextYearTarget  = new Date(this.year + 1, this.month, 1);
 
@@ -544,6 +552,13 @@ export default class SoCalendar {
     return date;
   }
 
+  /**
+   * Prepare and watch an input to restrict character input and add relevant 
+   * attributes to make it easier to use.
+   * 
+   * @param target - element it should be applied to 
+   * @param type - what kind of input type is it to change the behaviour
+   */
   private watchInput(target: HTMLInputElement, type: TargetKind = 'date'): void {
     if (target instanceof HTMLInputElement ) {
       target.inputMode = 'numeric';
@@ -554,15 +569,30 @@ export default class SoCalendar {
           case 'month':
             target.maxLength = 2;
             target.pattern = '[0-9]{2}';
+            break;
           case 'year':
             target.maxLength = 4;
             target.pattern = '[0-9]{4}';
+            break;
         }
       } else {
         // This is a full date field based on `this.dateFormat`
         target.maxLength = this.dateFormat.length;
         target.placeholder = this.dateFormat;
-        target.pattern = '[0-9]{2,4}/[0-9]{2,4}/[0-9]{2,4}/'; // TODO Use this.dateRestrictions
+        // Simple and strict for your three supported formats
+        switch (this.dateFormat) {
+          case 'DD/MM/YYYY':
+          case 'MM/DD/YYYY':
+            target.pattern = '^\\d{2}[\\/\\-]\\d{2}[\\/\\-]\\d{4}$';
+            break;
+          case 'YYYY/MM/DD':
+            target.pattern = '^\\d{4}[\\/\\-]\\d{2}[\\/\\-]\\d{2}$';
+            break;
+          default:
+            // digits plus / or -
+            target.pattern = '^[-0-9/]+$'; // or '^[0-9/-]+$'
+            break;
+        }
       }
 
       // Apply mask for `date` type
@@ -578,6 +608,11 @@ export default class SoCalendar {
     }
   }
 
+  /**
+   * Set the date based on a string value if it is valid
+   * @param value string containg a date in the format set in `this.dateFormat`
+   * @returns date or false
+   */
   private setDateString(value: string): boolean {
     const currentDate = this.parseDateString(value.trim());
     if (currentDate instanceof Date) {
@@ -587,6 +622,11 @@ export default class SoCalendar {
     return false;
   }
 
+  /**
+   * Sets the date selected by the user and sets the input value to that date in
+   * the format set in `this.dateFormat`
+   * @param date - the date the user selected
+   */
   public setDate(date: Date): void {
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -609,6 +649,11 @@ export default class SoCalendar {
     this.closeCalendar();
   }
 
+  /**
+   * Extracts the region from the locale string
+   * @param locale string
+   * @returns string - the region as uppercase letters
+   */
   private getRegionFromLocale(locale: string): string {
     const parts = locale.split("-");
     const region = parts.length >= 2 ? parts[1] : "";
@@ -733,12 +778,16 @@ export default class SoCalendar {
       });
   }
 
+  /**
+   * Generate date input field for the customer to enter their own date with
+   * an input mask to make it easier
+   */
   private generateDateInput(): void {
     this.toggleElements(['soCalendar-back'], false);
     this.toggleElements(['soCalendar-edit'], true);
     this.contentCurrent.innerHTML = `
       <div class="socalendar-date-editor socalendar-row">
-        <input class="socalendar-input" id="soCalendar-input" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="10" placeholder="${this.dateFormat}" mask="0000-00-00" />
+        <input class="socalendar-input" id="soCalendar-input" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="10" placeholder="${this.dateFormat}" mask="${this.getMaskPattern()}" />
         <button type="button" disabled id="soCalendar-date-confirm" class="socalendar-input-button ">${this.iconConfirm}</button>
       </div>
     `;
@@ -779,15 +828,19 @@ export default class SoCalendar {
     });
   }
 
+  private getMaskPattern(): string {
+    return this.dateFormat === 'YYYY/MM/DD' ? "0000/00/00" : "00/00/0000";
+  }
+
   private applyMask = (event: Event): void => {
-    const confirm = document.getElementById('soCalendar-date-confirm') as HTMLButtonElement;
-    const maskPattern = "00/00/0000";
+    const confirm = document.getElementById('soCalendar-date-confirm');
     const target = event.target;
+    const maskPattern = this.getMaskPattern();
 
     if (!(target instanceof HTMLInputElement)) return;
 
     const value = target.value;
-    const pureValue = value.replace(/[^a-zA-Z0-9]/g, '');
+    const pureValue = value.replace(/\D/g, '');
 
     if (value.trim() === '') return;
     
@@ -831,7 +884,7 @@ export default class SoCalendar {
     }
 
     target.setSelectionRange(cursorPos, cursorPos);
-    confirm.disabled = maskedValue.length !== maskPattern.length;
+    if (confirm instanceof HTMLButtonElement) confirm.disabled = maskedValue.length !== maskPattern.length;
   }
 
   private generateYearPicker(year?: number | null): void {
@@ -968,7 +1021,7 @@ export default class SoCalendar {
         const button = event.currentTarget;
         if (button instanceof HTMLButtonElement) {
           const month = Number(button.dataset.month);
-          if (month) {
+          if (!Number.isNaN(month)) {
             this.month = month;
             this.updateMonthLabel();
             this.generateDatePicker();
@@ -1065,10 +1118,10 @@ export default class SoCalendar {
           year === todayY;
 
         // If the current cell is this.date, mark it as current
-        const isCurrent = this.date.getTime() === cellDate.getTime();
-          // day === this.day &&
-          // month === this.month &&
-          // year === this.year;
+        const isCurrent =
+          this.date.getFullYear() === cellDate.getFullYear() &&
+          this.date.getMonth() === cellDate.getMonth() &&
+          this.date.getDate() === cellDate.getDate();
 
         const isDisabled = (this.minDate && new Date(year, month, day) < this.minDate || this.maxDate && new Date(year, month, day) > this.maxDate);
         

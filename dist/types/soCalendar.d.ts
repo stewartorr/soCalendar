@@ -53,9 +53,19 @@ export default class SoCalendar {
     private readonly perTarget;
     private readonly defaults;
     private static readonly DEFAULTS;
-    private configFor;
-    init(selector?: string, options?: SoCalendarOptions): void;
     constructor();
+    /**
+     * Gets config values for soCalendar Input
+     * @param target - the HTMLInputElement that contains the options
+     * @returns object containing key/value results
+     */
+    private configFor;
+    /**
+     *
+     * @param selector (string) containing the selector - defaults to `.date-picker`
+     * @param options (SoCalendarOptions) containing any overrides for the options
+     */
+    init(selector?: string, options?: SoCalendarOptions): void;
     private start;
     /**
      * Gets the month name based on the current locale and in the format selected
@@ -75,8 +85,7 @@ export default class SoCalendar {
     /**
      * Gets the day of the week name from the day number in <abbr> tag
      *
-     * @param month - the month as a number (0-6)
-     * @param format - the format it should be returned in ("narrow" | "short" | "long")
+     * @param day - the day of the week as a number (0-6)
      * @returns string containing the day name
      */
     private getWeekDay;
@@ -87,9 +96,31 @@ export default class SoCalendar {
     updateYear(change: number): void;
     private updateDate;
     private parseDateString;
+    /**
+     * Prepare and watch an input to restrict character input and add relevant
+     * attributes to make it easier to use.
+     *
+     * @param target - element it should be applied to
+     * @param type - what kind of input type is it to change the behaviour
+     */
     private watchInput;
+    /**
+     * Set the date based on a string value if it is valid
+     * @param value string containg a date in the format set in `this.dateFormat`
+     * @returns date or false
+     */
     private setDateString;
+    /**
+     * Sets the date selected by the user and sets the input value to that date in
+     * the format set in `this.dateFormat`
+     * @param date - the date the user selected
+     */
     setDate(date: Date): void;
+    /**
+     * Extracts the region from the locale string
+     * @param locale string
+     * @returns string - the region as uppercase letters
+     */
     private getRegionFromLocale;
     /**
      * Sets the locale for the calendar which updates date style and language
@@ -103,7 +134,12 @@ export default class SoCalendar {
     private toggleElements;
     restrictCharacters(field: HTMLInputElement, event: KeyboardEvent): boolean | undefined;
     formatDateInput(digits: string, format?: string): string;
+    /**
+     * Generate date input field for the customer to enter their own date with
+     * an input mask to make it easier
+     */
     private generateDateInput;
+    private getMaskPattern;
     private applyMask;
     private generateYearPicker;
     private generateMonthPicker;
