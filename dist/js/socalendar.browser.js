@@ -1,8 +1,25 @@
 "use strict";
 (() => {
   // src/js/soCalendar.ts
+  var targetMap = {
+    socalendarTarget: "date",
+    socalendarTargetDay: "day",
+    socalendarTargetMonth: "month",
+    socalendarTargetYear: "year"
+  };
   var SoCalendar = class _SoCalendar {
-    constructor(options = {}) {
+    constructor() {
+      this.iconPreviousMonth = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>`;
+      this.iconNextMonth = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>`;
+      this.iconPreviousYear = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M197.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L123.31,128ZM72,40a8,8,0,0,0-8,8V208a8,8,0,0,0,16,0V48A8,8,0,0,0,72,40Z"></path></svg>`;
+      this.iconNextYear = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M149.66,122.34a8,8,0,0,1,0,11.32l-80,80a8,8,0,0,1-11.32-11.32L132.69,128,58.34,53.66A8,8,0,0,1,69.66,42.34ZM184,40a8,8,0,0,0-8,8V208a8,8,0,0,0,16,0V48A8,8,0,0,0,184,40Z"></path></svg>`;
+      this.iconEdit = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path></svg>`;
+      this.iconBack = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>`;
+      this.iconToday = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-64-56a16,16,0,1,1-16-16A16,16,0,0,1,144,152Z"></path></svg>`;
+      this.iconCancel = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>`;
+      this.iconConfirm = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>`;
+      this.iconPreviousDecade = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M176,128a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,128Zm56,0A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>`;
+      this.iconNextDecade = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a8,8,0,0,1-8,8H136v32a8,8,0,0,1-16,0V136H88a8,8,0,0,1,0-16h32V88a8,8,0,0,1,16,0v32h32A8,8,0,0,1,176,128Z"></path></svg>`;
       this.date = /* @__PURE__ */ new Date();
       this.today = /* @__PURE__ */ new Date();
       this.referenceDate = new Date(1970, 0, 4);
@@ -10,14 +27,15 @@
       this.month = (/* @__PURE__ */ new Date()).getMonth();
       this.day = (/* @__PURE__ */ new Date()).getDay();
       this.selector = ".date-picker";
-      this.dateRestrictions = /[0-9\/-]/g;
+      this.dateRestrictions = /^[0-9/-]+$/;
+      this.perTarget = /* @__PURE__ */ new WeakMap();
       this.applyMask = (event) => {
         const confirm = document.getElementById("soCalendar-date-confirm");
-        const maskPattern = "00/00/0000";
         const target = event.target;
+        const maskPattern = this.getMaskPattern();
         if (!(target instanceof HTMLInputElement)) return;
         const value = target.value;
-        const pureValue = value.replace(/[^a-zA-Z0-9]/g, "");
+        const pureValue = value.replace(/\D/g, "");
         if (value.trim() === "") return;
         let maskedValue = "";
         let cursorPos = target.selectionStart || 0;
@@ -50,100 +68,275 @@
           }
         }
         target.setSelectionRange(cursorPos, cursorPos);
-        confirm.disabled = maskedValue.length !== maskPattern.length;
+        if (confirm instanceof HTMLButtonElement) confirm.disabled = maskedValue.length !== maskPattern.length;
       };
-      const config = { ..._SoCalendar.DEFAULTS, ...options };
+      if (_SoCalendar.shared) {
+        return _SoCalendar.shared;
+      }
+      const config = { ..._SoCalendar.DEFAULTS };
+      this.defaults = Object.freeze(config);
       Object.assign(this, config);
-      this.generateWeekDays();
-      const dialog = document.createElement("dialog");
-      dialog.id = "soCalendar";
-      dialog.classList.add("socalendar");
-      dialog.dataset.socalendarView = "date";
-      dialog.innerHTML = ` 
-      <div class="socalendar-inner">
-        <div class="socalendar-row">
-          <div class="socalendar-label-prev">
-            <button id="soCalendar-back" class="socalendar-button socalendar-back" type="button">${this.iconBack}</button>
-            <button id="soCalendar-prev-year" class="socalendar-button socalendar-prev-year" type="button">${this.iconPreviousYear}</button>
-            <button id="soCalendar-prev-month" class="socalendar-button socalendar-prev-month" type="button">${this.iconPreviousMonth}</button>
-          </div>
-          <div class="socalendar-label">
-            <button id="soCalendar-label-month" class="socalendar-button-label socalendar-label-month" type="button">
-              <span data-before="${this.getMonthName(this.date.getMonth() - 1, "short")}" data-after="${this.getMonthName(this.date.getMonth() + 1, "short")}">${this.getMonthName(this.date.getMonth(), "short")}</span>
-            </button>
-            <button id="soCalendar-label-year" class="socalendar-button-label socalendar-label-year" type="button">
-              <span data-before="${this.year - 1}" data-after="${this.year + 1}">${this.year}</span>
-            </button>
-            </div>
-            <div class="socalendar-label-next">
-            <button id="soCalendar-edit" class="socalendar-button socalendar-edit" type="button">${this.iconEdit}</button>
-            <button id="soCalendar-next-month" class="socalendar-button socalendar-next-month" type="button">${this.iconNextMonth}</button>
-            <button id="soCalendar-next-year" class="socalendar-button socalendar-next-year" type="button">${this.iconNextYear}</button>
-          </div>
-        </div>
-        <div class="socalendar-content-wrapper">
-          <div id="soCalendar-content" class="socalendar-content-inner" aria-live="polite">
-            <div id="soCalendar-content-prev" class="socalendar-content"></div>
-            <div id="soCalendar-content-current" class="socalendar-content"></div>
-            <div id="soCalendar-content-next" class="socalendar-content"></div>
-          </div>
-        </div>
-        <div id="soCalendar-footer" class="socalendar-row">
-          <button id="soCalendar-cancel" class="socalendar-button socalendar-cancel" type="button">${this.iconCancel}</button>
-          <button id="soCalendar-today" class="socalendar-button socalendar-today" type="button" disabled>${this.iconToday}</button>
-          <button id="soCalendar-confirm" class="socalendar-button socalendar-confirm" type="button">${this.iconConfirm}</button>
-        </div>
-      </div>`;
-      document.body.appendChild(dialog);
-      this.dialog = dialog;
-      this.content = dialog.querySelector("#soCalendar-content");
-      this.contentPrev = dialog.querySelector("#soCalendar-content-prev");
-      this.contentCurrent = dialog.querySelector("#soCalendar-content-current");
-      this.contentNext = dialog.querySelector("#soCalendar-content-next");
-      this.monthLabel = dialog.querySelector("#soCalendar-label-month");
-      this.yearLabel = dialog.querySelector("#soCalendar-label-year");
-      this.todayBtn = dialog.querySelector("#soCalendar-today");
-      this.prevMonthBtn = dialog.querySelector("#soCalendar-prev-month");
-      this.nextMonthBtn = dialog.querySelector("#soCalendar-next-month");
-      this.prevYearBtn = dialog.querySelector("#soCalendar-prev-year");
-      this.nextYearBtn = dialog.querySelector("#soCalendar-next-year");
-      this.backBtn = dialog.querySelector("#soCalendar-back");
-      this.editBtn = dialog.querySelector("#soCalendar-edit");
-      this.cancelBtn = dialog.querySelector("#soCalendar-cancel");
-      this.confirmBtn = dialog.querySelector("#soCalendar-confirm");
-      this.addListeners();
+      _SoCalendar.shared = this;
+      this.start();
+    }
+    static {
+      this.shared = null;
     }
     static {
       this.DEFAULTS = {
-        iconPreviousMonth: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>`,
-        iconNextMonth: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>`,
-        iconPreviousYear: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M197.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L123.31,128ZM72,40a8,8,0,0,0-8,8V208a8,8,0,0,0,16,0V48A8,8,0,0,0,72,40Z"></path></svg>`,
-        iconNextYear: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M149.66,122.34a8,8,0,0,1,0,11.32l-80,80a8,8,0,0,1-11.32-11.32L132.69,128,58.34,53.66A8,8,0,0,1,69.66,42.34ZM184,40a8,8,0,0,0-8,8V208a8,8,0,0,0,16,0V48A8,8,0,0,0,184,40Z"></path></svg>`,
-        iconEdit: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path></svg>`,
-        iconBack: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>`,
-        iconToday: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-64-56a16,16,0,1,1-16-16A16,16,0,0,1,144,152Z"></path></svg>`,
-        iconCancel: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>`,
-        iconConfirm: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>`,
-        iconPreviousDecade: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M176,128a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,128Zm56,0A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>`,
-        iconNextDecade: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a8,8,0,0,1-8,8H136v32a8,8,0,0,1-16,0V136H88a8,8,0,0,1,0-16h32V88a8,8,0,0,1,16,0v32h32A8,8,0,0,1,176,128Z"></path></svg>`,
         selector: ".date-picker",
-        locale: "en-GB",
+        locale: navigator.languages?.[0] || navigator.language || "en-EN",
         minDate: void 0,
         maxDate: void 0,
         dateFormat: "DD/MM/YYYY",
-        weekStartsOnMonday: true
+        firstDay: 1
       };
     }
+    /**
+     * Gets config values for soCalendar Input
+     * @param target - the HTMLInputElement that contains the options
+     * @returns object containing key/value results
+     */
+    configFor(target) {
+      const overrides = this.perTarget.get(target) ?? {};
+      return { ...this.defaults, ...overrides };
+    }
+    /**
+     * 
+     * @param selector (string) containing the selector - defaults to `.date-picker`
+     * @param options (SoCalendarOptions) containing any overrides for the options
+     */
+    init(selector = this.defaults.selector, options = {}) {
+      const targetElements = document.querySelectorAll(selector);
+      if (options.minDate instanceof Date) options.minDate.setHours(0, 0, 0, 0);
+      if (options.maxDate instanceof Date) options.maxDate.setHours(0, 0, 0, 0);
+      if (options.dateFormat) this.dateFormat = options.dateFormat;
+      targetElements.forEach((element) => {
+        const { selector: _s, ...rest } = options;
+        this.perTarget.set(element, rest);
+        if (element instanceof HTMLButtonElement) {
+          Object.entries(element.dataset).forEach(([key, value]) => {
+            if (!value) return;
+            const type = targetMap[key];
+            if (type !== void 0) {
+              const target = document.getElementById(value);
+              if (target && target instanceof HTMLInputElement) {
+                this.watchInput(target, type);
+              } else {
+                console.log(`[soCalendar] Target element cannot be found "#${value}".`);
+              }
+            }
+          });
+        } else if (element instanceof HTMLInputElement) {
+          this.watchInput(element, "date");
+        }
+        element.addEventListener("click", (event) => {
+          const element2 = event.currentTarget;
+          if (element2 instanceof HTMLButtonElement && element2.dataset.socalendarTarget) {
+            const target = document.getElementById(element2.dataset.socalendarTarget);
+            if (target instanceof HTMLInputElement) {
+              target.classList.add("socalendar-target");
+              this.targetElement = target;
+            } else {
+              console.log(`[soCalendar] Target element with id "${element2.dataset.socalendarTarget}" not found or not an input`);
+            }
+          } else if (element2 instanceof HTMLInputElement) {
+            element2.classList.add("socalendar-target");
+            this.targetElement = element2;
+          } else {
+            console.log(`[soCalendar] Button element missing data-socalendar-target attribute for target element.`);
+            return;
+          }
+          const cfg = this.configFor(this.targetElement);
+          this.locale = cfg.locale;
+          this.dateFormat = cfg.dateFormat;
+          this.firstDay = cfg.firstDay;
+          this.minDate = cfg.minDate instanceof Date ? cfg.minDate : false;
+          this.maxDate = cfg.maxDate instanceof Date ? cfg.maxDate : false;
+          if (!(this.minDate instanceof Date)) {
+            if (this.targetElement.dataset.minDate) {
+              this.minDate = this.parseDateString(this.targetElement.dataset.minDate);
+            } else {
+              this.minDate = false;
+            }
+          }
+          if (!(this.maxDate instanceof Date)) {
+            if (this.targetElement.dataset.maxDate) {
+              this.maxDate = this.parseDateString(this.targetElement.dataset.maxDate);
+            } else {
+              this.maxDate = false;
+            }
+          }
+          if (this.targetElement.dataset.dateFormat) {
+            this.dateFormat = this.targetElement.dataset.dateFormat;
+          }
+          if (this.targetElement.dataset.locale) {
+            this.setLocale(this.targetElement.dataset.locale);
+          } else {
+            this.setLocale(this.locale);
+          }
+          if (this.targetElement.type === "date" && this.targetElement.value.trim() != "") {
+            this.date = new Date(this.targetElement.value);
+          } else {
+            if (!this.setDateString(this.targetElement.value)) {
+              this.date = this.today;
+            }
+          }
+          this.year = this.date.getFullYear();
+          this.month = this.date.getMonth();
+          this.day = this.date.getDate();
+          this.generateDatePicker();
+          this.updateMonthLabel();
+          this.updateYearLabel();
+          this.dialog.showModal();
+        });
+      });
+    }
+    start() {
+      const existing = document.getElementById("soCalendar");
+      if (existing instanceof HTMLDialogElement) {
+        this.dialog = existing;
+      } else {
+        const dialog = document.createElement("dialog");
+        dialog.id = "soCalendar";
+        dialog.classList.add("socalendar");
+        dialog.dataset.socalendarView = "date";
+        dialog.innerHTML = `
+        <div class="socalendar-inner">
+          <div class="socalendar-row">
+            <div class="socalendar-label-prev">
+              <button id="soCalendar-back" class="socalendar-button socalendar-back" type="button">${this.iconBack}</button>
+              <button id="soCalendar-prev-year" class="socalendar-button socalendar-prev-year" type="button">${this.iconPreviousYear}</button>
+              <button id="soCalendar-prev-month" class="socalendar-button socalendar-prev-month" type="button">${this.iconPreviousMonth}</button>
+            </div>
+            <div class="socalendar-label">
+              <button id="soCalendar-label-month" class="socalendar-button-label socalendar-label-month" type="button">
+                <span data-before="${this.getMonthName(this.date.getMonth() - 1, "short")}" data-after="${this.getMonthName(this.date.getMonth() + 1, "short")}">${this.getMonthName(this.date.getMonth(), "short")}</span>
+              </button>
+              <button id="soCalendar-label-year" class="socalendar-button-label socalendar-label-year" type="button">
+                <span data-before="${this.year - 1}" data-after="${this.year + 1}">${this.year}</span>
+              </button>
+              </div>
+              <div class="socalendar-label-next">
+              <button id="soCalendar-edit" class="socalendar-button socalendar-edit" type="button">${this.iconEdit}</button>
+              <button id="soCalendar-next-month" class="socalendar-button socalendar-next-month" type="button">${this.iconNextMonth}</button>
+              <button id="soCalendar-next-year" class="socalendar-button socalendar-next-year" type="button">${this.iconNextYear}</button>
+            </div>
+          </div>
+          <div class="socalendar-content-wrapper">
+            <div id="soCalendar-content" class="socalendar-content-inner" aria-live="polite">
+              <div id="soCalendar-content-prev" class="socalendar-content"></div>
+              <div id="soCalendar-content-current" class="socalendar-content"></div>
+              <div id="soCalendar-content-next" class="socalendar-content"></div>
+            </div>
+          </div>
+          <div id="soCalendar-footer" class="socalendar-row">
+            <button id="soCalendar-cancel" class="socalendar-button socalendar-cancel" type="button">${this.iconCancel}</button>
+            <button id="soCalendar-today" class="socalendar-button socalendar-today" type="button" disabled>${this.iconToday}</button>
+            <button id="soCalendar-confirm" class="socalendar-button socalendar-confirm" type="button">${this.iconConfirm}</button>
+          </div>
+        </div>`;
+        document.body.appendChild(dialog);
+        this.dialog = dialog;
+        this.content = dialog.querySelector("#soCalendar-content");
+        this.contentPrev = dialog.querySelector("#soCalendar-content-prev");
+        this.contentCurrent = dialog.querySelector("#soCalendar-content-current");
+        this.contentNext = dialog.querySelector("#soCalendar-content-next");
+        this.monthLabel = dialog.querySelector("#soCalendar-label-month");
+        this.yearLabel = dialog.querySelector("#soCalendar-label-year");
+        this.todayBtn = dialog.querySelector("#soCalendar-today");
+        this.prevMonthBtn = dialog.querySelector("#soCalendar-prev-month");
+        this.nextMonthBtn = dialog.querySelector("#soCalendar-next-month");
+        this.prevYearBtn = dialog.querySelector("#soCalendar-prev-year");
+        this.nextYearBtn = dialog.querySelector("#soCalendar-next-year");
+        this.backBtn = dialog.querySelector("#soCalendar-back");
+        this.editBtn = dialog.querySelector("#soCalendar-edit");
+        this.cancelBtn = dialog.querySelector("#soCalendar-cancel");
+        this.confirmBtn = dialog.querySelector("#soCalendar-confirm");
+        this.dialog.addEventListener("mousedown", (event) => {
+          const rect = this.dialog.getBoundingClientRect();
+          const isInDialog = rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width;
+          if (!isInDialog) {
+            this.closeCalendar();
+          }
+        });
+        this.content.addEventListener("transitionend", (e) => {
+          if (e.target !== this.content) return;
+          this.content.classList.remove("next", "prev");
+          this.generateDatePicker();
+        });
+        this.monthLabel.addEventListener("transitionend", () => {
+          this.monthLabel.classList.remove("next", "prev");
+          this.updateMonthLabel();
+        });
+        this.yearLabel.addEventListener("transitionend", () => {
+          this.yearLabel.classList.remove("next", "prev");
+          this.updateYearLabel();
+        });
+        this.backBtn.addEventListener("click", () => {
+          this.generateDatePicker();
+        });
+        this.editBtn.addEventListener("click", () => {
+          this.generateDateInput();
+        });
+        this.prevYearBtn.addEventListener("click", () => {
+          this.updateYear(-1);
+        });
+        this.prevMonthBtn.addEventListener("click", () => {
+          this.updateMonth(-1);
+        });
+        this.nextMonthBtn.addEventListener("click", () => {
+          this.updateMonth(1);
+        });
+        this.nextYearBtn.addEventListener("click", () => {
+          this.updateYear(1);
+        });
+        this.cancelBtn.addEventListener("click", () => {
+          this.closeCalendar();
+        });
+        this.confirmBtn.addEventListener("click", () => {
+          this.closeCalendar();
+        });
+        this.todayBtn.addEventListener("click", () => {
+          this.year = this.today.getFullYear();
+          this.month = this.today.getMonth();
+          this.day = this.today.getDate();
+          this.updateYearLabel();
+          this.updateMonthLabel();
+          this.generateDatePicker();
+        });
+        this.monthLabel.addEventListener("click", () => {
+          this.generateMonthPicker();
+        });
+        this.yearLabel.addEventListener("click", () => {
+          this.generateYearPicker();
+        });
+      }
+    }
+    /**
+     * Gets the month name based on the current locale and in the format selected
+     * 
+     * @param month - the month as a number (0-11)
+     * @param format - the format it should be returned in ("short" | "long")
+     * @returns string containing the month name
+     */
     getMonthName(month, format = "short") {
       return new Intl.DateTimeFormat(this.locale, {
         month: format
       }).format(new Date(2e3, month, 1));
     }
+    /**
+     * Generates the weekday labels based on the current locale and configured 
+     * first day of the week populating this.weekDays
+     *
+     * @param format - The weekday display format ('narrow', 'short', or 'long').
+     */
     generateWeekDays(format = "narrow") {
       this.weekDays = [];
+      const firstDay = this.firstDay ?? this.defaults.firstDay;
+      const jsFirstDay = firstDay === 7 ? 0 : firstDay;
       for (let i = 0; i < 7; i++) {
-        let dayOffset = i;
-        if (this.weekStartsOnMonday) dayOffset = (i + 1) % 7;
+        const dayOffset = (jsFirstDay + i) % 7;
         const date = new Date(this.referenceDate);
         date.setDate(this.referenceDate.getDate() + dayOffset);
         this.weekDays.push([
@@ -152,9 +345,15 @@
         ]);
       }
     }
+    /**
+     * Gets the day of the week name from the day number in <abbr> tag
+     * 
+     * @param day - the day of the week as a number (0-6)
+     * @returns string containing the day name
+     */
     getWeekDay(day) {
-      const [full, abbr] = this.weekDays[day];
-      return `<abbr title="${abbr}">${full}</abbr>`;
+      const [label, full] = this.weekDays[day];
+      return `<abbr title="${full}">${label}</abbr>`;
     }
     daysInMonth(year, month) {
       return new Date(year, month + 1, 0).getDate();
@@ -249,112 +448,59 @@
       }
       return date;
     }
-    addListeners() {
-      const inputElements = document.querySelectorAll(this.selector);
-      inputElements.forEach((input) => {
-        input.addEventListener("click", (event) => {
-          const element = event.currentTarget;
-          if (element instanceof HTMLButtonElement && element.dataset.socalendarTarget) {
-            const target = document.getElementById(element.dataset.socalendarTarget);
-            if (target instanceof HTMLInputElement) {
-              target.classList.add("socalendar-target");
-              this.targetElement = target;
-            } else {
-              console.log(`[soCalendar] Target element with id "${element.dataset.socalendarTarget}" not found or not an input`);
-            }
-          } else if (element instanceof HTMLInputElement) {
-            input.classList.add("socalendar-target");
-            this.targetElement = element;
-          } else {
-            console.log(`[soCalendar] Button element missing data-socalendar-target attribute for target element.`);
-            return;
+    /**
+     * Prepare and watch an input to restrict character input and add relevant 
+     * attributes to make it easier to use.
+     * 
+     * @param target - element it should be applied to 
+     * @param type - what kind of input type is it to change the behaviour
+     */
+    watchInput(target, type = "date") {
+      if (target instanceof HTMLInputElement) {
+        target.inputMode = "numeric";
+        target.type = "text";
+        if (type !== "date") {
+          switch (type) {
+            case "day":
+            case "month":
+              target.maxLength = 2;
+              target.pattern = "[0-9]{2}";
+              break;
+            case "year":
+              target.maxLength = 4;
+              target.pattern = "[0-9]{4}";
+              break;
           }
-          if (this.targetElement.dataset.minDate) {
-            this.minDate = this.parseDateString(this.targetElement.dataset.minDate);
-          } else {
-            this.minDate = false;
+        } else {
+          target.maxLength = this.dateFormat.length;
+          target.placeholder = this.dateFormat;
+          switch (this.dateFormat) {
+            case "DD/MM/YYYY":
+            case "MM/DD/YYYY":
+              target.pattern = "^\\d{2}[\\/\\-]\\d{2}[\\/\\-]\\d{4}$";
+              break;
+            case "YYYY/MM/DD":
+              target.pattern = "^\\d{4}[\\/\\-]\\d{2}[\\/\\-]\\d{2}$";
+              break;
+            default:
+              target.pattern = "^[-0-9/]+$";
+              break;
           }
-          if (this.targetElement.dataset.maxDate) {
-            this.maxDate = this.parseDateString(this.targetElement.dataset.maxDate);
-          } else {
-            this.maxDate = false;
-          }
-          if (this.targetElement.type === "date" && this.targetElement.value.trim() != "") {
-            this.date = new Date(this.targetElement.value);
-          } else {
-            if (!this.setDateString(this.targetElement.value)) {
-              this.date = this.today;
-            }
-          }
-          this.year = this.date.getFullYear();
-          this.month = this.date.getMonth();
-          this.day = this.date.getDate();
-          this.generateDatePicker();
-          this.updateMonthLabel();
-          this.updateYearLabel();
-          this.dialog.showModal();
-        });
-      });
-      this.dialog.addEventListener("click", (event) => {
-        const rect = this.dialog.getBoundingClientRect();
-        const isInDialog = rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width;
-        if (!isInDialog) {
-          this.closeCalendar();
         }
-      });
-      this.content.addEventListener("transitionend", (e) => {
-        if (e.target !== this.content) return;
-        this.content.classList.remove("next", "prev");
-        this.generateDatePicker();
-      });
-      this.monthLabel.addEventListener("transitionend", () => {
-        this.monthLabel.classList.remove("next", "prev");
-        this.updateMonthLabel();
-      });
-      this.yearLabel.addEventListener("transitionend", () => {
-        this.yearLabel.classList.remove("next", "prev");
-        this.updateYearLabel();
-      });
-      this.backBtn.addEventListener("click", () => {
-        this.generateDatePicker();
-      });
-      this.editBtn.addEventListener("click", () => {
-        this.generateDateInput();
-      });
-      this.prevYearBtn.addEventListener("click", () => {
-        this.updateYear(-1);
-      });
-      this.prevMonthBtn.addEventListener("click", () => {
-        this.updateMonth(-1);
-      });
-      this.nextMonthBtn.addEventListener("click", () => {
-        this.updateMonth(1);
-      });
-      this.nextYearBtn.addEventListener("click", () => {
-        this.updateYear(1);
-      });
-      this.cancelBtn.addEventListener("click", () => {
-        this.closeCalendar();
-      });
-      this.confirmBtn.addEventListener("click", () => {
-        this.closeCalendar();
-      });
-      this.todayBtn.addEventListener("click", () => {
-        this.year = this.today.getFullYear();
-        this.month = this.today.getMonth();
-        this.day = this.today.getDate();
-        this.updateYearLabel();
-        this.updateMonthLabel();
-        this.generateDatePicker();
-      });
-      this.monthLabel.addEventListener("click", () => {
-        this.generateMonthPicker();
-      });
-      this.yearLabel.addEventListener("click", () => {
-        console.log("year picker clicked");
-        this.generateYearPicker();
-      });
+        if (type === "date") {
+          target.addEventListener("input", (e) => this.applyMask(e));
+          target.addEventListener("paste", (e) => this.applyMask(e));
+        }
+        target.addEventListener("keydown", (event) => {
+          this.restrictCharacters(target, event);
+        });
+      }
     }
+    /**
+     * Set the date based on a string value if it is valid
+     * @param value string containg a date in the format set in `this.dateFormat`
+     * @returns date or false
+     */
     setDateString(value) {
       const currentDate = this.parseDateString(value.trim());
       if (currentDate instanceof Date) {
@@ -363,19 +509,93 @@
       }
       return false;
     }
+    /**
+     * Sets the date selected by the user and sets the input value to that date in
+     * the format set in `this.dateFormat`
+     * @param date - the date the user selected
+     */
     setDate(date) {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
       if (this.targetElement.type === "date") {
-        const yyyy = date.getFullYear();
-        const mm = String(date.getMonth() + 1).padStart(2, "0");
-        const dd = String(date.getDate()).padStart(2, "0");
         this.targetElement.value = `${yyyy}-${mm}-${dd}`;
       } else {
-        this.targetElement.value = date.toLocaleDateString(this.locale);
+        switch (this.dateFormat) {
+          case "DD/MM/YYYY":
+            this.targetElement.value = `${dd}/${mm}/${yyyy}`;
+            break;
+          case "MM/DD/YYYY":
+            this.targetElement.value = `${mm}/${dd}/${yyyy}`;
+            break;
+          default:
+            this.targetElement.value = `${yyyy}/${mm}/${dd}`;
+            break;
+        }
       }
       this.closeCalendar();
     }
-    closeCalendar() {
-      this.dialog.close();
+    /**
+     * Extracts the region from the locale string
+     * @param locale string
+     * @returns string - the region as uppercase letters
+     */
+    getRegionFromLocale(locale) {
+      const parts = locale.split("-");
+      const region = parts.length >= 2 ? parts[1] : "";
+      return region.toUpperCase();
+    }
+    /**
+     * Sets the locale for the calendar which updates date style and language
+     * 
+     * @param locale string with locale value ('en-GB')
+     */
+    setLocale(locale = null) {
+      if (locale && Intl.DateTimeFormat.supportedLocalesOf([locale]).length > 0) {
+        try {
+          const loc = new Intl.Locale(locale);
+          const weekInfo = loc.getWeekInfo();
+          this.firstDay = weekInfo.firstDay;
+        } catch {
+          const region = this.getRegionFromLocale(locale);
+          const SUNDAY_FIRST = /* @__PURE__ */ new Set([
+            "US",
+            // United States
+            "CA",
+            // Canada (commonly Sunday-first in many calendars)
+            "PH",
+            // Philippines
+            "MX",
+            // Mexico (often Sunday-first)
+            "CO",
+            // Colombia (often Sunday-first)
+            "BR",
+            // Brazil (often Sunday-first)
+            "AU",
+            // Australia (mixed; many calendars show Monday, but Sunday is also common)
+            "NZ",
+            // New Zealand (mixed)
+            "JP",
+            // Japan (often Sunday-first)
+            "KR",
+            // Korea (often Sunday-first)
+            "TW",
+            // Taiwan
+            "HK"
+            // Hong Kong
+          ]);
+          if (SUNDAY_FIRST.has(region) || locale.toLowerCase().startsWith("en-us")) {
+            this.firstDay = 7;
+          } else {
+            this.firstDay = _SoCalendar.DEFAULTS.firstDay;
+          }
+        }
+        this.locale = locale;
+      } else {
+        if (locale) console.log(`[soCalendar] Cannot change locale as invalid value "${locale}".`);
+        this.locale = _SoCalendar.DEFAULTS.locale;
+      }
+      this.generateWeekDays();
     }
     isOpen() {
       return this.dialog && this.dialog.classList.contains("socalendar-loaded");
@@ -383,6 +603,9 @@
     show() {
       if (this.isOpen()) return;
       this.dialog.classList.add("socalendar-loaded");
+    }
+    closeCalendar() {
+      this.dialog.close();
     }
     toggleElements(ids, hide = false, cssclass = "socalendar-hidden") {
       ids.forEach((id) => {
@@ -426,12 +649,16 @@
         return offset < digits.length ? match : "";
       });
     }
+    /**
+     * Generate date input field for the customer to enter their own date with
+     * an input mask to make it easier
+     */
     generateDateInput() {
       this.toggleElements(["soCalendar-back"], false);
       this.toggleElements(["soCalendar-edit"], true);
       this.contentCurrent.innerHTML = `
       <div class="socalendar-date-editor socalendar-row">
-        <input class="socalendar-input" id="soCalendar-input" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="10" placeholder="${this.dateFormat}" mask="0000-00-00" />
+        <input class="socalendar-input" id="soCalendar-input" type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength="10" placeholder="${this.dateFormat}" mask="${this.getMaskPattern()}" />
         <button type="button" disabled id="soCalendar-date-confirm" class="socalendar-input-button ">${this.iconConfirm}</button>
       </div>
     `;
@@ -458,7 +685,6 @@
         dateInput.addEventListener("paste", (e) => this.applyMask(e));
       }
       dateConfirm.addEventListener("click", (event) => {
-        alert("confirm");
         this.setDateString(dateInput.value);
         this.year = this.date.getFullYear();
         this.month = this.date.getMonth();
@@ -467,6 +693,9 @@
         this.updateMonthLabel();
         this.updateYearLabel();
       });
+    }
+    getMaskPattern() {
+      return this.dateFormat === "YYYY/MM/DD" ? "0000/00/00" : "00/00/0000";
     }
     generateYearPicker(year) {
       if (!year) year = this.year;
@@ -530,7 +759,7 @@
           this.generateYearPicker(decadeStart - 10);
         });
         yearPickerInner.classList.add("prev");
-      });
+      }, { once: true });
       nextDecade.addEventListener("click", () => {
         yearPickerInner.addEventListener("transitionend", () => {
           yearPickerInner.classList.remove("next", "prev");
@@ -538,7 +767,7 @@
           this.generateYearPicker(decadeStart + 10);
         });
         yearPickerInner.classList.add("next");
-      });
+      }, { once: true });
       const calendarButtons = this.dialog.querySelectorAll("#soCalendar button.socalendar-select-year");
       calendarButtons.forEach((b) => {
         b.addEventListener("click", (event) => {
@@ -581,10 +810,8 @@
         button.addEventListener("click", (event) => {
           const button2 = event.currentTarget;
           if (button2 instanceof HTMLButtonElement) {
-            console.log("buttn ok");
             const month = Number(button2.dataset.month);
-            console.log(month);
-            if (month) {
+            if (!Number.isNaN(month)) {
               this.month = month;
               this.updateMonthLabel();
               this.generateDatePicker();
@@ -616,7 +843,7 @@
         const firstDayOfMonth = new Date(viewYear, viewMonth, 1);
         const monthDays = this.daysInMonth(viewYear, viewMonth);
         let startDay = firstDayOfMonth.getDay();
-        if (this.weekStartsOnMonday) startDay = (startDay + 6) % 7;
+        if (this.firstDay === 1) startDay = (startDay + 6) % 7;
         const prevMonthDate = new Date(viewYear, viewMonth - 1, 1);
         const prevMonth = prevMonthDate.getMonth();
         const prevYear = prevMonthDate.getFullYear();
@@ -644,7 +871,7 @@
           }
           const cellDate = new Date(year, month, day);
           const isToday = !outside && day === todayD && month === todayM && year === todayY;
-          const isCurrent = this.date.getTime() === cellDate.getTime();
+          const isCurrent = this.date.getFullYear() === cellDate.getFullYear() && this.date.getMonth() === cellDate.getMonth() && this.date.getDate() === cellDate.getDate();
           const isDisabled = this.minDate && new Date(year, month, day) < this.minDate || this.maxDate && new Date(year, month, day) > this.maxDate;
           const isMinDate = this.minDate instanceof Date && new Date(year, month, day).getTime() === this.minDate.getTime();
           const isMaxDate = this.maxDate instanceof Date && new Date(year, month, day).getTime() === this.maxDate.getTime();
