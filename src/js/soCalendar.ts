@@ -565,6 +565,7 @@ export default class SoCalendar {
   private watchInput(target: HTMLInputElement, type: TargetKind = 'date'): void {
     if (target instanceof HTMLInputElement ) {
       target.inputMode = 'numeric';
+      target.readOnly = true;
       target.type = 'text';
       if (type !== 'date') {
         switch (type) {
