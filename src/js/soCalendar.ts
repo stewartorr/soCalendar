@@ -212,7 +212,7 @@ export default class SoCalendar {
         this.generateDatePicker();
         this.updateMonthLabel();
         this.updateYearLabel();
-        this.dialog.showModal();
+        this.showCalendar();
       });
     });
   }
@@ -223,6 +223,9 @@ export default class SoCalendar {
       this.dialog = existing;
     } else {
       const dialog = document.createElement('dialog');
+      dialog.addEventListener("close", (event) => {
+        this.closeCalendar();
+      })
       dialog.id = "soCalendar";
       dialog.classList.add('socalendar');
       dialog.dataset.socalendarView = 'date';
@@ -707,15 +710,17 @@ export default class SoCalendar {
 
   
   private isOpen(): boolean {
-    return (this.dialog && this.dialog.classList.contains('socalendar-loaded'));
+    return (this.dialog && document.body.classList.contains('socalendar-open'));
   }
   
-  public show(): void {
+  public showCalendar(): void {
     if (this.isOpen()) return;
-    this.dialog.classList.add('socalendar-loaded');
+    document.body.classList.add('socalendar-open')
+    this.dialog.showModal();
   }
   
   public closeCalendar(): void {
+    document.body.classList.remove('socalendar-open')
     this.dialog.close();
   }
 

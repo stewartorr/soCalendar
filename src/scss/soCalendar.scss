@@ -33,6 +33,10 @@ $socalendar-transition-timing-big: 0.5s;
 $socalendar-transition-timing-small: 0.15s;
 $socalendar-breakpoint: 380px;
 
+body.socalendar-open {
+  overflow: hidden;
+}
+
 .socalendar {
   --socalendar-bg-color: #{$socalendar-bg-color};
   --socalendar-primary-color: #{$socalendar-primary-color};
