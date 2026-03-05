@@ -466,11 +466,11 @@ export default class SoCalendar {
     if (this.minDate instanceof Date && newDate < this.minDate || this.maxDate instanceof Date && newDate > this.maxDate) {
       return;
     }
-
+    this.content.classList.add(classToggle);
+    this.generateDatePicker('year');
     this.yearLabel.classList.add(classToggle);
     this.content.classList.add(classToggle);
     this.year += change;
-    this.generateDatePicker();
   }
 
   private updateDate() {
@@ -708,7 +708,6 @@ export default class SoCalendar {
     this.generateWeekDays();
   }
 
-  
   private isOpen(): boolean {
     return (this.dialog && document.body.classList.contains('socalendar-open'));
   }
@@ -1037,7 +1036,7 @@ export default class SoCalendar {
   }
 
   // Generate a datepicker which contains previous, current and next month for scrolling
-	generateDatePicker(): void {
+	generateDatePicker(period: 'month' | 'year' = 'month'): void {
 
     // Set the view and tidy up classes
     this.dialog.dataset.socalendarView = 'date';
@@ -1061,7 +1060,7 @@ export default class SoCalendar {
     for (let offset = -1; offset <= 1; offset++) {
 
       // Compute correct month/year for this iteration
-      const baseDate = new Date(this.year, this.month + offset, 1);
+      const baseDate = (period === 'year') ? new Date(this.year + offset, this.month, 1) : new Date(this.year, this.month + offset, 1);
       const viewYear = baseDate.getFullYear();
       const viewMonth = baseDate.getMonth();
 
@@ -1184,7 +1183,7 @@ export default class SoCalendar {
     }
 
     // Check elements based on new date
-    this.updateDate();
+    if (period !== 'year') this.updateDate();
 
     // Add button event listeners
     const calendarButtons = this.dialog.querySelectorAll<HTMLButtonElement>("#soCalendar button.soCalendar-select-date");
