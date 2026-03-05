@@ -1,24 +1,36 @@
-body {
-  background: silver;
-  padding: 25px;
-  height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+* {
+  box-sizing: border-box;
   font-family: "Oswald", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-  font-size: 100%;
-  line-height: 1.6;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
+
+body {
+  background: #efefef;
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: none;
+  padding: 10px;
+
+  @media screen and (min-width: 400px) {
+    padding: 25px;
+  }
+}
+
+main {
+  background: white;
+  border-radius: 15px;
+  padding: min(5vw, 50px);
+  margin: 0 auto;
+  max-width: 640px;
+}
+
 h1 {
   margin: 0;
 }
-main {
-  background: white;
-  border-radius: 20px;
-  padding: 50px;
-  max-width: 640px;
-  width: 100%;
-}
+
 form
 ol {
   list-style: none;
@@ -33,50 +45,12 @@ input {
   font: inherit;
 }
 
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  font-family: "Oswald", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-}
-
-img {
-  max-width: 100%;
-}
-
-body {
-  background: #efefef;
-  font-size: 12px;
-  -webkit-font-smoothing: antialiased;
-  -webkit-text-size-adjust: none;
-  height: 100%;
-  overflow-x: hidden;
-  padding: 20px 10px 10px;
-}
-
 a {
   color: #099ba4;
 }
 
 code {
-  font-family: ui-monospace, 
-    Menlo, Monaco, 
-    "Cascadia Mono", "Segoe UI Mono", 
-    "Roboto Mono", 
-    "Oxygen Mono", 
-    "Ubuntu Mono", 
-    "Source Code Pro",
-    "Fira Mono", 
-    "Droid Sans Mono", 
-    "Consolas", "Courier New", monospace;
+  font-family: ui-monospace, Menlo, Monaco, "Consolas", "Courier New", monospace;
 }
 
 button,
@@ -152,6 +126,7 @@ label {
   display: flex;
   margin-top: 20px;
   transition: all 0.1s ease;
+  width: 100%;
 }
 
 .input-wrap > * {
@@ -170,26 +145,26 @@ label {
   overflow: visible;
   width: 2em;
 }
+
 .input-wrap input.input-middle[maxlength="4"] {
   width: 4.5ch;
 }
-
 
 .input-wrap input + input {
   padding-left: 0;
 }
 
-
-
 .input-wrap:focus-within input {
   outline: none !important;
 }
+
 .input-wrap .input-pre,
 .input-wrap .input-post {
   align-self: stretch;
   background: #eee;
   width: 3em;
   display: flex;
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
 }
@@ -228,9 +203,9 @@ input[type=number],
 select,
 textarea {
   border: none;
-  flex: 1 0 auto;
   font: inherit;
   padding: 10px;
+  width: auto;
 }
 input[type=text].error,
 input[type=date].error,
@@ -244,12 +219,6 @@ input[type=number].error,
 select.error,
 textarea.error {
   background: #FFF5F5;
-}
-
-
-textarea {
-  min-height: 10em;
-  resize: vertical;
 }
 
 .hint {
