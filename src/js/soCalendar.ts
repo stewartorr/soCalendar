@@ -134,6 +134,7 @@ export default class SoCalendar {
         });
       } else if (element instanceof HTMLInputElement) {
         // Add watcher to element
+        element.readOnly = true;
         this.watchInput(element, 'date');
       }
 
@@ -253,9 +254,9 @@ export default class SoCalendar {
           </div>
           <div class="socalendar-content-wrapper">
             <div id="soCalendar-content" class="socalendar-content-inner" aria-live="polite">
-              <div id="soCalendar-content-prev" class="socalendar-content"></div>
+              <div id="soCalendar-content-prev" class="socalendar-content" aria-visible="false" inert></div>
               <div id="soCalendar-content-current" class="socalendar-content"></div>
-              <div id="soCalendar-content-next" class="socalendar-content"></div>
+              <div id="soCalendar-content-next" class="socalendar-content" aria-visible="false" inert></div>
             </div>
           </div>
           <div id="soCalendar-footer" class="socalendar-row">
@@ -565,7 +566,6 @@ export default class SoCalendar {
   private watchInput(target: HTMLInputElement, type: TargetKind = 'date'): void {
     if (target instanceof HTMLInputElement ) {
       target.inputMode = 'numeric';
-      target.readOnly = true;
       target.type = 'text';
       if (type !== 'date') {
         switch (type) {
@@ -994,6 +994,10 @@ export default class SoCalendar {
 
   // This updates the main calendar content area to show month picker
   private generateMonthPicker():void {
+
+    // Clear the other content areas
+    this.contentPrev.innerHTML = '';
+    this.contentNext.innerHTML = '';
 
     // Set the view and tidy up classes
     this.dialog.dataset.socalendarView = 'month';
