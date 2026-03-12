@@ -283,6 +283,108 @@ export default class SoCalendar {
       this.cancelBtn = dialog.querySelector("#soCalendar-cancel")!;
       this.confirmBtn = dialog.querySelector("#soCalendar-confirm")!;
     
+      // Add keyboard event listeners for accessiblity
+      this.dialog.addEventListener('keydown', (event) => {
+        console.log("dialog.addEventListener('keydown')", event.key);
+
+        const currentButton = event.target;
+        const day = parseInt(currentButton.dataset.day);
+        const month = parseInt(currentButton.dataset.month);
+        const year = parseInt(currentButton.dataset.year);
+
+        switch (event.key) {
+          case 'PageUp':
+            if (event.shiftKey) {
+              this.updateYear(-1);
+            } else {
+              this.updateMonth(-1);
+            }
+            setTimeout(() => { this.focusFirstButton(); }, 360);
+            break;
+          case 'PageDown':
+            if (event.shiftKey) {
+              this.updateYear(1);
+            } else {
+              this.updateMonth(1);
+            }
+            setTimeout(() => { this.focusFirstButton(); }, 360);
+            break;
+
+          case 'Home':
+            this.focusFirstButton();
+            break;
+
+          case 'End':
+            this.focusLastButton();
+            break;
+
+          case 'Right':
+          case 'ArrowRight':
+            if (document.activeElement?.tagName.toLowerCase() !== 'button') {
+              this.focusFirstButton();
+              return;
+            };
+            const nextDate = new Date(year, month, day + 1);
+            const nextButton = this.contentCurrent.querySelector(`button.socalendar-button[data-year="${nextDate.getFullYear()}"][data-month="${nextDate.getMonth()}"][data-day="${nextDate.getDate()}"]`);
+            if (nextButton) {
+              nextButton.focus();
+            } else {
+              this.updateMonth(1);
+              setTimeout(() => { this.focusFirstButton(); }, 360);
+            }
+            break;
+
+          case 'Left':
+          case 'ArrowLeft':
+            if (document.activeElement?.tagName.toLowerCase() !== 'button') {
+              this.focusLastButton();
+              return;
+            };
+            const prevDate = new Date(year, month, day - 1);
+            const prevButton = this.contentCurrent.querySelector(`button.socalendar-button[data-year="${prevDate.getFullYear()}"][data-month="${prevDate.getMonth()}"][data-day="${prevDate.getDate()}"]`);
+            if (prevButton) {
+              prevButton.focus();
+            } else {
+              this.updateMonth(1);
+              setTimeout(() => { this.focusLastButton(); }, 360);
+            }
+            break
+
+          case 'Down':
+          case 'ArrowDown':
+            if (document.activeElement?.tagName.toLowerCase() !== 'button') {
+              this.focusFirstButton();
+              return;
+            };
+            const nextWeek = new Date(year, month, day + 7);
+            const nextWeekButton = this.contentCurrent.querySelector(`button.socalendar-button[data-year="${nextWeek.getFullYear()}"][data-month="${nextWeek.getMonth()}"][data-day="${nextWeek.getDate()}"]`);
+            if (nextWeekButton) {
+              nextWeekButton.focus();
+            } else {
+              this.updateMonth(1);
+              setTimeout(() => { this.focusFirstButton(); }, 360);
+            }
+            break;
+
+          case 'Up':
+          case 'ArrowUp':
+            if (document.activeElement?.tagName.toLowerCase() !== 'button') {
+              this.focusLastButton();
+              return;
+            };
+            const prevWeek = new Date(year, month, day - 7);
+            const prevWeekButton = this.contentCurrent.querySelector(`button.socalendar-button[data-year="${prevWeek.getFullYear()}"][data-month="${prevWeek.getMonth()}"][data-day="${prevWeek.getDate()}"]`);
+            if (prevWeekButton) {
+              prevWeekButton.focus();
+            } else {
+              this.updateMonth(1);
+              setTimeout(() => { this.focusLastButton(); }, 360);
+
+            }
+            break;
+        }
+      });
+
       // Detect click outside date picker and close
       this.dialog.addEventListener('mousedown', (event) => {
         const rect = this.dialog.getBoundingClientRect();
@@ -378,6 +480,17 @@ export default class SoCalendar {
         this.generateYearPicker();
       });
     }
+  }
+
+
+  private focusFirstButton(): void {
+    const buttons = this.contentCurrent.querySelectorAll('button.socalendar-button:not(:disabled)');
+    if (buttons) buttons[0].focus();    
+  }
+
+  private focusLastButton(): void {
+    const buttons = this.contentCurrent.querySelectorAll('button.socalendar-button:not(:disabled)');
+    if (buttons) buttons[buttons.length - 1].focus();
   }
 
   /**
@@ -598,6 +711,13 @@ export default class SoCalendar {
             break;
         }
       }
+
+      // Watch on keyboard events
+      target.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key === "Enter") {
+          this.showCalendar();
+        }
+      });
 
       // Apply mask for `date` type
       if (type === 'date') {
