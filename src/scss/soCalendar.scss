@@ -53,33 +53,34 @@ body.socalendar-open {
   --socalendar-border-radius-content: #{$socalendar-border-radius-content};
   --socalendar-transition-timing-big: #{$socalendar-transition-timing-big};
   --socalendar-transition-timing-small: #{$socalendar-transition-timing-small};
-  
   --socalendar-padding-large: #{$socalendar-padding-large};
   --socalendar-padding-small: #{$socalendar-padding-small};
-  --socalendar-gap: 3px;
-
-  --width: 400px;
-  --socalendar-size: calc(var(--width) - (var(--socalendar-padding-large) * 2));
-
+  --socalendar-padding-gap: 3px;
+  --socalendar-icon-size: 28px;
+  --socalendar-width: #{$socalendar-breakpoint};
+  --socalendar-button-size: calc(var(--socalendar-width) - (var(--socalendar-padding-large) * 2) - var(--socalendar-padding-gap) * 2);
 
   background: var(--socalendar-bg-color);
   border-radius: var(--socalendar-border-radius-dialog);
   border: 0;
   box-shadow: 0 1em 5em rgba(0, 0, 0, 0.25);
   display: block;
-  // min-height: 440px;
   padding: var(--socalendar-padding-large);
   position: fixed;
   transform: translate3d(0, 0, 0) scale(0.2);
   transition: all var(--socalendar-transition-timing-small) ease-out;
   visibility: hidden;
   z-index: 1001;
-  width: var(--width);
+  min-width: var(--socalendar-width);
+  width: var(--socalendar-width);
+
+  &:focus-visible {
+    outline-color: var(--socalendar-primary-color);
+  }
 
   @media screen and (max-width: #{$socalendar-breakpoint - 1}) {
-    --width: 100vw;
-    --socalendar-gap: 2px;
-    --socalendar-header-font-size: 18px;
+    --socalendar-width: 100vw;
+    --socalendar-padding-gap: 2px;
     --socalendar-padding-large: min(5vw, 20px);
     --socalendar-border-radius-dialog: 12px;
     --socalendar-border-radius-content: 6px;
@@ -88,8 +89,8 @@ body.socalendar-open {
     margin: auto 0;
   }
   @media screen and (min-width: #{$socalendar-breakpoint}) {
-    --width: #{$socalendar-breakpoint};
-    --socalendar-gap: 3px;
+    --socalendar-width: #{$socalendar-breakpoint};
+    --socalendar-padding-gap: 3px;
     --socalendar-border-radius-dialog: #{$socalendar-border-radius-dialog};
     --socalendar-border-radius-content: #{$socalendar-border-radius-content};
     --socalendar-header-font-size: 22px;
@@ -99,7 +100,7 @@ body.socalendar-open {
   
   &::backdrop {
     background: var(--socalendar-backdrop);
-    transition: all var(--socalendar-transition-timing-big) ease;
+    transition: background var(--socalendar-transition-timing-big) ease;
     
     @starting-style {
       background: rgba(0, 0, 0, 0);
@@ -109,7 +110,7 @@ body.socalendar-open {
   .socalendar-inner {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
     opacity: 0;
     transform: translate3d(0, 0, 0) scale(0.5);
     transition: opacity var(--socalendar-transition-timing-big) cubic-bezier(0.23, 1, 0.32, 1);
@@ -124,7 +125,7 @@ body.socalendar-open {
     
     .socalendar-inner {
       opacity: 1;
-      transform: translate3d(0, 0, 0)  scale(1);
+      transform: translate3d(0, 0, 0) scale(1);
       transition: all var(--socalendar-transition-timing-big) cubic-bezier(0.23, 1, 0.32, 1) var(--socalendar-transition-timing-small);
     }
   }
@@ -153,7 +154,7 @@ body.socalendar-open {
   .socalendar-row {
     align-items: center;
     display: flex;
-    gap: var(--socalendar-gap);
+    gap: var(--socalendar-padding-gap);
     justify-content: space-between;
   }
   
@@ -161,8 +162,8 @@ body.socalendar-open {
   .socalendar-label-next {
     align-items: center;
     display: flex;
+    gap: var(--socalendar-padding-gap);
     height: 32px;
-    width: 64px;
   }
   
   .socalendar-label-next {
@@ -181,13 +182,18 @@ body.socalendar-open {
     transition: all var(--socalendar-transition-timing-small) ease;
     will-change: color, opacity;
 
-    svg {
-      height: 28px;
-      width: 28px;
+    
+    &:focus-visible {
+      outline: 2px solid var(--socalendar-primary-color);
+    }
 
-      @media screen and (min-width: 400px) {
-        height: 32px;
-        width: 32px;
+    svg {
+      height: var(--socalendar-icon-size);
+      width: var(--socalendar-icon-size);
+      vertical-align: bottom;
+
+      @media screen and (min-width: $socalendar-breakpoint) {
+        --socalendar-icon-size: 32px;
       }
     }
     
@@ -223,12 +229,17 @@ body.socalendar-open {
       }
     }
 
-    
+    &.socalendar-confirm,
     &.socalendar-next-year,
     &.socalendar-next-month,
     &.socalendar-edit {
       opacity: 1;
       transition: var(--socalendar-transition-timing-small) ease var(--socalendar-transition-timing-small);
+
+      @starting-style {
+        opacity: 0;
+        transform: translateX(-5px);
+      }
     }
     
     &.socalendar-input-button {
@@ -330,7 +341,7 @@ body.socalendar-open {
     flex-flow: row nowrap;
     flex-grow: 1;
     font-size: var(--socalendar-header-font-size);
-    gap: var(--socalendar-gap);
+    gap: var(--socalendar-padding-gap);
     justify-content: center;
     justify-self: stretch;
     
@@ -345,7 +356,6 @@ body.socalendar-open {
   }
   
   .socalendar-content-wrapper {
-    max-width: 350px;
     overflow: hidden;
   }
   
@@ -353,7 +363,7 @@ body.socalendar-open {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
-    transform: translate3d(100%, 0, 0);
+    transform: translate3d(0, 0, 0);
     will-change: transform;
 
 		&.prev,
@@ -362,11 +372,11 @@ body.socalendar-open {
 		}
 
 		&.prev {
-			transform: translate3d(200%, 0, 0);
+			transform: translate3d(100%, 0, 0);
 		}
 
 		&.next {
-			transform: translate3d(0%, 0, 0);
+			transform: translate3d(-100%, 0, 0);
 		}
   }
   
@@ -374,8 +384,7 @@ body.socalendar-open {
     align-items: flex-start;
     display: flex;
     flex: 0 0 100%;
-    transform: translate3d(-100%, 0, 0);
-    width: 350px;
+    padding: var(--socalendar-padding-gap);
     
     table {
       border: 0;
@@ -383,7 +392,7 @@ body.socalendar-open {
       th {
         color: var(--socalendar-gray-color);
         font-weight: normal;
-        font-size: 12px;;
+        font-size: 12px;
         padding: 0.5em 0.33em;
       }
       
@@ -393,7 +402,7 @@ body.socalendar-open {
       
       td {
         text-align: center;
-        padding: 0 var(--socalendar-gap) var(--socalendar-gap) 0;
+        padding: 0 var(--socalendar-padding-gap) var(--socalendar-padding-gap) 0;
       }
     }
     
@@ -408,17 +417,19 @@ body.socalendar-open {
       padding: 0;
       display: flex;
       flex-flow: row wrap;
-      gap: var(--socalendar-gap);
+      gap: var(--socalendar-padding-gap);
       width: 100%;
       
       li {
-        flex: 0 0 calc(33.333% - var(--socalendar-gap));
+        flex: 0 0 calc(33.333% - var(--socalendar-padding-gap));
         margin: 0;
         padding: 0;
         
         button {
-          height: 92px;
-          line-height: 92px;
+        --button-size: calc((var(--socalendar-button-size) / 4) - var(--socalendar-padding-gap));
+
+          height: var(--button-size);
+          line-height: var(--button-size);
           width: 100%;
         }
       }
@@ -484,7 +495,7 @@ body.socalendar-open {
       .socalendar-year-picker-label {
         font-size: var(--socalendar-header-font-size);
         display: flex;
-        gap: var(--socalendar-gap);
+        gap: var(--socalendar-padding-gap);
         align-items: center;
         
         .year-value {
@@ -510,7 +521,7 @@ body.socalendar-open {
 
     .socalendar-year-picker-wrapper {
       overflow: hidden;
-      max-height: 316px;
+      max-height: 292px;
       width: 100%;
 
       .socalendar-year-picker-inner {
@@ -573,12 +584,14 @@ body.socalendar-open {
     
     table.socalendar-date-picker {
       button {
-        height: calc((var(--socalendar-size) / 7) - var(--socalendar-gap));
+        --button-size: calc((var(--socalendar-button-size) / 7) - var(--socalendar-padding-gap));
+
+        height: var(--button-size);
         position: relative;
-        width: calc((var(--socalendar-size) / 7) - var(--socalendar-gap));
+        width: var(--button-size);
 
         &[disabled] {
-          background: var(--socalendar-silver-color);
+          background: var(--socalendar-silver-color) !important;
           color: var(--socalendar-dark-color);
           font-weight: 300;
           position: relative;
@@ -653,8 +666,11 @@ body.socalendar-open {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .socalendar, 
-  .socalendar-inner {
-    transition: none;
+  .socalendar,
+  .socalendar *,
+  .socalendar::backdrop {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
