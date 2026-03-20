@@ -46,8 +46,6 @@ export default class SoCalendar {
   private iconToday: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-64-56a16,16,0,1,1-16-16A16,16,0,0,1,144,152Z"></path></svg>`;
   private iconCancel: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>`;
   private iconConfirm: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>`;
-  private iconPreviousDecade: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M176,128a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,128Zm56,0A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>`;
-  private iconNextDecade: string = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a8,8,0,0,1-8,8H136v32a8,8,0,0,1-16,0V136H88a8,8,0,0,1,0-16h32V88a8,8,0,0,1,16,0v32h32A8,8,0,0,1,176,128Z"></path></svg>`;
 
   private locale!: string;
   private date: Date = new Date();
@@ -226,7 +224,7 @@ export default class SoCalendar {
       const dialog = document.createElement('dialog');
       dialog.addEventListener("close", (event) => {
         this.closeCalendar();
-      })
+      });
       dialog.id = "soCalendar";
       dialog.classList.add('socalendar');
       dialog.dataset.socalendarView = 'date';
@@ -258,11 +256,11 @@ export default class SoCalendar {
               <div id="soCalendar-content-current" class="socalendar-content"></div>
               <div id="soCalendar-content-next" class="socalendar-content" aria-visible="false" inert></div>
             </div>
-          </div>
-          <div id="soCalendar-footer" class="socalendar-row">
-            <button id="soCalendar-cancel" class="socalendar-button socalendar-cancel" type="button">${this.iconCancel}</button>
-            <button id="soCalendar-today" class="socalendar-button socalendar-today" type="button" disabled>${this.iconToday}</button>
-            <button id="soCalendar-confirm" class="socalendar-button socalendar-confirm" type="button">${this.iconConfirm}</button>
+            <div id="soCalendar-footer" class="socalendar-row">
+              <button id="soCalendar-cancel" class="socalendar-button socalendar-cancel" type="button">${this.iconCancel}</button>
+              <button id="soCalendar-today" class="socalendar-button socalendar-today" type="button" disabled>${this.iconToday}</button>
+              <button id="soCalendar-confirm" class="socalendar-button socalendar-confirm" type="button">${this.iconConfirm}</button>
+            </div>
           </div>
         </div>`;
       document.body.appendChild(dialog);
@@ -1035,17 +1033,21 @@ export default class SoCalendar {
     let yearPickerHTML: string = '';
 
     // TODO, disabled outside min and max
-
     const decadeStart = Math.floor(year / 10) * 10;
     for (let offset = -1; offset <= 1; offset++) {
       const thisDecade = decadeStart + (10 * offset);
+      const attributes = offset !== 0 ? 'aria-visible="false" inert' : ""
       yearPickerHTML += `
-        <ol class="socalendar-year-picker">
+        <ol class="socalendar-year-picker" ${attributes}>
           ${Array.from({ length: 10 }, (_, i) => {
             const year = thisDecade + i;
+            const disabled = this;
+            const isDisabled = (this.minDate && year < this.minDate.getFullYear() || this.maxDate && year > this.maxDate.getFullYear());
+
+            console.log(year, this.date.getFullYear(), this.year === this.date.getFullYear());
             return `
               <li>
-                <button type="button" class="socalendar-button ${this.year === year?"selected":""} socalendar-select-year" data-year="${year}">
+                <button type="button" class="socalendar-button ${year === this.date.getFullYear()?"is-current":""} socalendar-select-year" data-year="${year}" ${isDisabled?"disabled":""}>
                   ${year}
                 </button>
               </li>
@@ -1057,13 +1059,13 @@ export default class SoCalendar {
     this.contentCurrent.innerHTML = `
       <div class="socalendar-year-picker-container">
         <div class="socalendar-year-picker-scroller socalendar-row">
-          <button type="button" id="soCalendar-decade-prev">${this.iconPreviousDecade}</button>
+          <button type="button" id="soCalendar-decade-prev">${this.iconPreviousMonth}</button>
           <span class="socalendar-year-picker-label" id="soCalendar-year-picker-label">
             <span class="year-value">${decadeStart}</span> 
             <svg class="separator" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"></path></svg>
             <span class="year-value">${decadeStart+9}</span>
           </span>
-          <button type="button" id="soCalendar-decade-next">${this.iconNextDecade}</button>
+          <button type="button" id="soCalendar-decade-next">${this.iconNextMonth}</button>
         </div>
         <div class="socalendar-year-picker-wrapper">
           <div class="socalendar-year-picker-inner" id="soCalendar-year-picker-inner">
