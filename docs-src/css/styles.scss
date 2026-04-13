@@ -1,0 +1,202 @@
+::-webkit-input-placeholder {
+  color: #999;
+  text-transform: initial;
+}
+
+:-moz-placeholder {
+  color: #999;
+  text-transform: initial;
+}
+
+:-ms-input-placeholder {
+  color: #999;
+  text-transform: initial;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Oswald", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #efefef;
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: none;
+  padding: 10px;
+
+  @media screen and (min-width: 400px) {
+    padding: 25px;
+  }
+}
+
+h1 {
+  margin: 0;
+}
+
+a {
+  color: #099ba4;
+}
+
+code {
+  font-family: ui-monospace, Menlo, Monaco, "Consolas", "Courier New", monospace;
+}
+
+main {
+  background: white;
+  border-radius: 15px;
+  padding: min(5vw, 50px);
+  margin: 0 auto;
+  max-width: 640px;
+}
+
+p,
+ul,
+ol {
+  margin-bottom: 20px;
+  font-weight: 200;
+  font-size: 16px;
+}
+
+ul li,
+ol li {
+  list-style-position: inside;
+}
+
+
+
+fieldset ol > li {
+  margin: 0;
+  position: relative;
+  background: #fafafa;
+  padding: 20px;
+}
+
+fieldset ol > li:nth-child(even) {
+  background: #fff;
+}
+
+// -----------------------------------------------------------------------------
+// Forms
+// -----------------------------------------------------------------------------
+
+label {
+  color: #000;
+  display: block;
+  margin: 0 0 20px;
+  line-height: 1.2;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+.btn-primary {
+  border: 0;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #FFF;
+  background: #099ba4;
+  line-height: 1.5;
+  font-weight: 400;
+  padding: 10px 20px;
+  text-align: center;
+  cursor: pointer;
+  display: inline-block;
+  transition: background 0.25s ease-in-out;
+}
+
+.btn-primary:hover {
+  background: #099ba4;
+}
+
+// -----------------------------------------------------------------------------
+// Input wrap element
+// -----------------------------------------------------------------------------
+
+.input-wrap {
+  background: #fff;
+  border-radius: 3px;
+  border: 2px solid #aaa;
+  color: #999;
+  display: flex;
+  margin-top: 20px;
+  transition: all 0.1s ease;
+  width: 100%;
+
+  &:focus-within {
+    border-color: #099ba4;
+    box-shadow: 0 0 0 3px #099ba430;
+
+    input,
+    select,
+    textarea {
+      outline: none !important;
+    }
+  }
+
+  .input-pre,
+  .input-post {
+    align-self: stretch;
+    background: #eee;
+    width: 3em;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
+    
+    svg {
+      color: #777;
+      width: 1.5em;
+      height: 1.5em;
+      margin-top: -0.2em;
+    }
+  }
+
+  .input-pre {
+    border-radius: 2px 0 0 2px;
+  }
+
+  button:last-child,
+  .input-post {
+    border-radius: 0 2px 2px 0;
+    margin-left: auto;
+  }
+
+  input:not([type="checkbox"], [type="radio"]),
+  select,
+  textarea {
+    border: none;
+    font: inherit;
+    padding: 10px;
+    width: 100%;
+  }
+
+  input + input {
+    padding-left: 0;
+  }
+
+  // When there are multiple input fields for DD/MM/YYYY
+  input.input-middle {
+    box-sizing: content-box;
+    flex: 0 1 auto;
+    overflow: visible;
+    width: 2em;
+  }
+  input.input-middle[maxlength="4"] {
+    width: 4.5ch;
+  }
+}
+
+.hint {
+  color: #333;
+  font-size: 14px;
+  margin: 5px 0;
+}

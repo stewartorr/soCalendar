@@ -33,8 +33,6 @@ export default class SoCalendar {
     private iconToday;
     private iconCancel;
     private iconConfirm;
-    private iconPreviousDecade;
-    private iconNextDecade;
     private locale;
     private date;
     private today;
@@ -67,6 +65,8 @@ export default class SoCalendar {
      */
     init(selector?: string, options?: SoCalendarOptions): void;
     private start;
+    private focusFirstButton;
+    private focusLastButton;
     /**
      * Gets the month name based on the current locale and in the format selected
      *
@@ -129,7 +129,7 @@ export default class SoCalendar {
      */
     private setLocale;
     private isOpen;
-    show(): void;
+    showCalendar(): void;
     closeCalendar(): void;
     private toggleElements;
     restrictCharacters(field: HTMLInputElement, event: KeyboardEvent): boolean | undefined;
@@ -143,6 +143,6 @@ export default class SoCalendar {
     private applyMask;
     private generateYearPicker;
     private generateMonthPicker;
-    generateDatePicker(): void;
+    generateDatePicker(period?: 'month' | 'year'): void;
 }
 export {};

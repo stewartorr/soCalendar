@@ -20,7 +20,6 @@ $socalendar-primary-dark: #0c8086;
 $socalendar-primary-color-light: #E7F8F7;
 $socalendar-primary-color-hover: #CEF0EF;
 $socalendar-secondary-color: #495057;
-$socalendar-white-color: #fff;
 $socalendar-dark-color: #161616;
 $socalendar-gray-color: #999;
 $socalendar-silver-color: #e4e7e7;
@@ -33,6 +32,10 @@ $socalendar-transition-timing-big: 0.5s;
 $socalendar-transition-timing-small: 0.15s;
 $socalendar-breakpoint: 380px;
 
+body.socalendar-open {
+  overflow: hidden;
+}
+
 .socalendar {
   --socalendar-bg-color: #{$socalendar-bg-color};
   --socalendar-primary-color: #{$socalendar-primary-color};
@@ -40,7 +43,7 @@ $socalendar-breakpoint: 380px;
   --socalendar-primary-color-light: #{$socalendar-primary-color-light};
   --socalendar-primary-color-hover: #{$socalendar-primary-color-hover};
   --socalendar-secondary-color: #{$socalendar-secondary-color};
-  --socalendar-white-color: #{$socalendar-white-color};
+  --socalendar-bg-color: #{$socalendar-bg-color};
   --socalendar-dark-color: #{$socalendar-dark-color};
   --socalendar-gray-color: #{$socalendar-gray-color};
   --socalendar-silver-color: #{$socalendar-silver-color};
@@ -49,33 +52,34 @@ $socalendar-breakpoint: 380px;
   --socalendar-border-radius-content: #{$socalendar-border-radius-content};
   --socalendar-transition-timing-big: #{$socalendar-transition-timing-big};
   --socalendar-transition-timing-small: #{$socalendar-transition-timing-small};
-  
   --socalendar-padding-large: #{$socalendar-padding-large};
   --socalendar-padding-small: #{$socalendar-padding-small};
-  --socalendar-gap: 3px;
-
-  --width: 400px;
-  --socalendar-size: calc(var(--width) - (var(--socalendar-padding-large) * 2));
-
+  --socalendar-padding-gap: 2px;
+  --socalendar-inner-gap: 12px;
+  --socalendar-icon-size: 28px;
+  --socalendar-width: 100vw;
+  --socalendar-size: calc(var(--socalendar-width) - (var(--socalendar-padding-large) * 2));
+  --socalendar-footer-size: calc(var(--socalendar-icon-size) + var(--socalendar-inner-gap));
 
   background: var(--socalendar-bg-color);
   border-radius: var(--socalendar-border-radius-dialog);
   border: 0;
   box-shadow: 0 1em 5em rgba(0, 0, 0, 0.25);
   display: block;
-  // min-height: 440px;
   padding: var(--socalendar-padding-large);
   position: fixed;
   transform: translate3d(0, 0, 0) scale(0.2);
   transition: all var(--socalendar-transition-timing-small) ease-out;
   visibility: hidden;
   z-index: 1001;
-  width: var(--width);
+  min-width: var(--socalendar-width);
+  width: var(--socalendar-width);
+
+  &:focus-visible {
+    outline-color: var(--socalendar-primary-color);
+  }
 
   @media screen and (max-width: #{$socalendar-breakpoint - 1}) {
-    --width: 100vw;
-    --socalendar-gap: 2px;
-    --socalendar-header-font-size: 18px;
     --socalendar-padding-large: min(5vw, 20px);
     --socalendar-border-radius-dialog: 12px;
     --socalendar-border-radius-content: 6px;
@@ -83,9 +87,10 @@ $socalendar-breakpoint: 380px;
     max-width: 100vw;
     margin: auto 0;
   }
+
   @media screen and (min-width: #{$socalendar-breakpoint}) {
-    --width: #{$socalendar-breakpoint};
-    --socalendar-gap: 3px;
+    --socalendar-width: #{$socalendar-breakpoint};
+    --socalendar-padding-gap: 4px;
     --socalendar-border-radius-dialog: #{$socalendar-border-radius-dialog};
     --socalendar-border-radius-content: #{$socalendar-border-radius-content};
     --socalendar-header-font-size: 22px;
@@ -95,7 +100,7 @@ $socalendar-breakpoint: 380px;
   
   &::backdrop {
     background: var(--socalendar-backdrop);
-    transition: all var(--socalendar-transition-timing-big) ease;
+    transition: background var(--socalendar-transition-timing-big) ease;
     
     @starting-style {
       background: rgba(0, 0, 0, 0);
@@ -105,7 +110,7 @@ $socalendar-breakpoint: 380px;
   .socalendar-inner {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--socalendar-inner-gap);
     opacity: 0;
     transform: translate3d(0, 0, 0) scale(0.5);
     transition: opacity var(--socalendar-transition-timing-big) cubic-bezier(0.23, 1, 0.32, 1);
@@ -120,7 +125,7 @@ $socalendar-breakpoint: 380px;
     
     .socalendar-inner {
       opacity: 1;
-      transform: translate3d(0, 0, 0)  scale(1);
+      transform: translate3d(0, 0, 0) scale(1);
       transition: all var(--socalendar-transition-timing-big) cubic-bezier(0.23, 1, 0.32, 1) var(--socalendar-transition-timing-small);
     }
   }
@@ -149,7 +154,7 @@ $socalendar-breakpoint: 380px;
   .socalendar-row {
     align-items: center;
     display: flex;
-    gap: var(--socalendar-gap);
+    gap: var(--socalendar-padding-gap);
     justify-content: space-between;
   }
   
@@ -157,8 +162,8 @@ $socalendar-breakpoint: 380px;
   .socalendar-label-next {
     align-items: center;
     display: flex;
+    gap: var(--socalendar-padding-gap);
     height: 32px;
-    width: 64px;
   }
   
   .socalendar-label-next {
@@ -176,14 +181,18 @@ $socalendar-breakpoint: 380px;
     padding: 0;
     transition: all var(--socalendar-transition-timing-small) ease;
     will-change: color, opacity;
+    
+    &:focus-visible {
+      outline: 2px solid var(--socalendar-primary-color);
+    }
 
     svg {
-      height: 28px;
-      width: 28px;
+      height: var(--socalendar-icon-size);
+      width: var(--socalendar-icon-size);
+      vertical-align: bottom;
 
-      @media screen and (min-width: 400px) {
-        height: 32px;
-        width: 32px;
+      @media screen and (min-width: $socalendar-breakpoint) {
+        --socalendar-icon-size: 32px;
       }
     }
     
@@ -219,12 +228,17 @@ $socalendar-breakpoint: 380px;
       }
     }
 
-    
+    &.socalendar-confirm,
     &.socalendar-next-year,
     &.socalendar-next-month,
     &.socalendar-edit {
       opacity: 1;
       transition: var(--socalendar-transition-timing-small) ease var(--socalendar-transition-timing-small);
+
+      @starting-style {
+        opacity: 0;
+        transform: translateX(-5px);
+      }
     }
     
     &.socalendar-input-button {
@@ -297,11 +311,37 @@ $socalendar-breakpoint: 380px;
     }
   }
 
+  .socalendar-label {
+    align-items: center;
+    color: var(--socalendar-secondary-color);
+    display: flex;
+    flex-flow: row nowrap;
+    flex-grow: 1;
+    font-size: var(--socalendar-header-font-size);
+    gap: var(--socalendar-padding-gap);
+    justify-content: center;
+    justify-self: stretch;
+    transition: transform var(--socalendar-transition-timing-small) ease;
+    
+    button {
+      color: inherit;
+      font-size: var(--socalendar-header-font-size);
+      font-weight: 400;
+      line-height: 1;
+      margin: 0;
+      padding: 0;
+    }
+  }
+  
   &[data-socalendar-view="month"] {
     button.socalendar-label-month {
+      background: var(--socalendar-bg-color);
+      box-shadow: 0 0 15px 10px var(--socalendar-bg-color);
       color: var(--socalendar-primary-color);
-      text-decoration: underline;
+      transform: translateX(15px);
+      z-index: 1;
     }
+
     button.socalendar-label-year {
       color: var(--socalendar-gray-color);
       opacity: 0.5;
@@ -314,42 +354,32 @@ $socalendar-breakpoint: 380px;
       opacity: 0.5;
     }
     button.socalendar-label-year {
+      background: var(--socalendar-bg-color);
+      box-shadow: 0 0 15px 10px var(--socalendar-bg-color);
       color: var(--socalendar-primary-color);
-      text-decoration: underline;
+      transform: translateX(-15px);
+      z-index: 1;
     }
   }
 
-  .socalendar-label {
-    align-items: center;
-    color: var(--socalendar-secondary-color);
-    display: flex;
-    flex-flow: row nowrap;
-    flex-grow: 1;
-    font-size: var(--socalendar-header-font-size);
-    gap: var(--socalendar-gap);
-    justify-content: center;
-    justify-self: stretch;
-    
-    button {
-      color: inherit;
-      font-size: var(--socalendar-header-font-size);
-      font-weight: 400;
-      line-height: 1;
-      margin: 0;
-      padding: 0;
-    }
-  }
-  
   .socalendar-content-wrapper {
-    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: calc(
+      var(--socalendar-width) - 
+      var(--socalendar-footer-size) + 
+      var(--socalendar-inner-gap)
+    );
     overflow: hidden;
   }
   
   .socalendar-content-inner {
     display: flex;
     flex-flow: row nowrap;
+    flex-grow: 1;
     justify-content: center;
-    transform: translate3d(100%, 0, 0);
+    transform: translate3d(0, 0, 0);
     will-change: transform;
 
 		&.prev,
@@ -358,11 +388,11 @@ $socalendar-breakpoint: 380px;
 		}
 
 		&.prev {
-			transform: translate3d(200%, 0, 0);
+			transform: translate3d(100%, 0, 0);
 		}
 
 		&.next {
-			transform: translate3d(0%, 0, 0);
+			transform: translate3d(-100%, 0, 0);
 		}
   }
   
@@ -370,16 +400,22 @@ $socalendar-breakpoint: 380px;
     align-items: flex-start;
     display: flex;
     flex: 0 0 100%;
-    transform: translate3d(-100%, 0, 0);
-    width: 350px;
+    padding: var(--socalendar-padding-gap);
     
     table {
       border: 0;
-      margin: 0;			
+      margin: 0;
+      width: 100%;
+
+      th,
+      td {
+        width: 14.28571429%; // 100 / 7
+      }
+
       th {
         color: var(--socalendar-gray-color);
         font-weight: normal;
-        font-size: 12px;;
+        font-size: 12px;
         padding: 0.5em 0.33em;
       }
       
@@ -389,14 +425,10 @@ $socalendar-breakpoint: 380px;
       
       td {
         text-align: center;
-        padding: 0 var(--socalendar-gap) var(--socalendar-gap) 0;
+        padding: 0 var(--socalendar-padding-gap) var(--socalendar-padding-gap) 0;
       }
     }
     
-    .socalendar-year-picker-container {
-      width: 100%;
-    }
-
     .socalendar-month-picker,
     .socalendar-year-picker {
       list-style: none;
@@ -404,18 +436,18 @@ $socalendar-breakpoint: 380px;
       padding: 0;
       display: flex;
       flex-flow: row wrap;
-      gap: var(--socalendar-gap);
-      width: 100%;
+      flex: 0 0 100%;
+      height: 100%;
+      gap: var(--socalendar-padding-gap);
       
       li {
-        flex: 0 0 calc(33.333% - var(--socalendar-gap));
+        flex: 1 0 calc(33.333% - var(--socalendar-padding-gap));
         margin: 0;
         padding: 0;
         
         button {
-          height: 92px;
-          line-height: 92px;
-          width: 100%;
+          transition: 0.25s;
+          opacity: 1;
         }
       }
     }
@@ -424,8 +456,7 @@ $socalendar-breakpoint: 380px;
     .socalendar-month-picker {
       li {
         button {
-          transition: 0.25s;
-          opacity: 1;
+
           
           @starting-style {
             opacity: 0;
@@ -464,8 +495,7 @@ $socalendar-breakpoint: 380px;
         flex: 0 0 calc(50% - 2px);
         
         button {
-          height: 60px;
-          line-height: 60px;
+          
         }
       }
     }
@@ -475,12 +505,11 @@ $socalendar-breakpoint: 380px;
       border-radius: var(--socalendar-border-radius-content);
       border: 1px solid var(--socalendar-gray-color);
       margin-bottom: 10px;
-      flex: 0 1 100%;
       
       .socalendar-year-picker-label {
         font-size: var(--socalendar-header-font-size);
         display: flex;
-        gap: var(--socalendar-gap);
+        gap: var(--socalendar-inner-gap);
         align-items: center;
         
         .year-value {
@@ -500,19 +529,26 @@ $socalendar-breakpoint: 380px;
       }
     }
 
+    .socalendar-year-picker-container {
+      height: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+    }
+
     .socalendar-year-picker-scroller {
-      padding: 10px;
+      padding: 8px;
     } 
 
     .socalendar-year-picker-wrapper {
+      height: 100%;
       overflow: hidden;
-      max-height: 316px;
       width: 100%;
 
       .socalendar-year-picker-inner {
         display: flex;
-        flex-flow: column nowrap;
-        transform: translate3d(0, -33.333%, 0);
+        flex-flow: row nowrap;
+        height: 100%;
+        transform: translate3d(-100%, 0, 0);
         will-change: transform;
 
         &.prev,
@@ -521,11 +557,11 @@ $socalendar-breakpoint: 380px;
         }
 
         &.prev {
-          transform: translate3d(0, 0, 0);
+          transform: translate3d(0%, 0, 0);
         }
 
         &.next {
-          transform: translate3d(0, -66.666%, 0);
+          transform: translate3d(-200%, 0, 0);
         }
       }
     }
@@ -558,99 +594,103 @@ $socalendar-breakpoint: 380px;
       display: block;
       font-size: 16px;
       font-weight: 400;
+      height: 100%;
       transition: background 0.1s ease;
       will-change: background;
-      
+      width: 100%;
+
       &:not([disabled]):hover {
         background: var(--socalendar-primary-color-hover);
         color: var(--socalendar-primary-color)
+      }
+
+      &[disabled] {
+        background: var(--socalendar-silver-color) !important;
+        color: var(--socalendar-dark-color);
+        font-weight: 300;
+        position: relative;
+
+        &::before {
+          background: var(--socalendar-dark-color);
+          content: "";
+          height: 1px;
+          left: 15%;
+          position: absolute;
+          top: 50%;
+          transform: rotate(-45deg);
+          opacity: 0.5;
+          width: 70%;
+        }
+      }
+
+      &.is-today {
+        background: var(--socalendar-bg-color);
+        box-shadow: 0 0 0 1px var(--socalendar-primary-color) inset;
+      }
+      
+      &.is-outside-month {
+        background-image: repeating-linear-gradient(-45deg, #ddd, #ddd 1px, #fff 1px, #fff 5px);
+        color: #aaa;
+        font-weight: 300;
+      }
+      
+      &.is-current {
+        background: var(--socalendar-primary-color);
+        color: var(--socalendar-bg-color);
+
+        &.is-start {
+          border-radius: var(--socalendar-border-radius-content) 0 0 var(--socalendar-border-radius-content);
+        }
+
+        &.is-in-range {
+          border-radius: 0;
+          box-shadow: 2px 0 0 var(--socalendar-primary-color), -2px 0 0 var(--socalendar-primary-color);
+        }
+
+        &.is-end {
+          border-radius: 0 var(--socalendar-border-radius-content) var(--socalendar-border-radius-content) 0;
+        }
+
+        &:hover {
+          background: var(--socalendar-primary-dark);
+          color: var(--socalendar-bg-color);
+        }
+      }
+
+      &.is-min-date:after,
+      &.is-max-date:after {
+        content: "";
+        position: absolute;
+        top: 30%;
+        width: 2px;
+        background: var(--socalendar-primary-color);
+        height: 40%;
+      }
+
+      &.is-min-date:after {
+        left: 1px;
+      }
+
+      &.is-max-date:after {
+        right: 1px;
       }
     }
     
     table.socalendar-date-picker {
       button {
-        height: calc((var(--socalendar-size) / 7) - var(--socalendar-gap));
+        aspect-ratio: 1;
         position: relative;
-        width: calc((var(--socalendar-size) / 7) - var(--socalendar-gap));
-
-        &[disabled] {
-          background: var(--socalendar-silver-color);
-          color: var(--socalendar-dark-color);
-          font-weight: 300;
-          position: relative;
-
-          &::before {
-            background: var(--socalendar-dark-color);
-            content: "";
-            height: 1px;
-            left: 15%;
-            position: absolute;
-            top: 50%;
-            transform: rotate(-45deg);
-            opacity: 0.5;
-            width: 70%;
-          }
-        }
-
-        &.is-today {
-          background: var(--socalendar-white-color);
-          box-shadow: 0 0 0 1px var(--socalendar-primary-color) inset;
-        }
-        
-        &.is-outside-month {
-          background-image: repeating-linear-gradient(-45deg, #ddd, #ddd 1px, #fff 1px, #fff 5px);
-          color: #aaa;
-          font-weight: 300;
-        }
-        
-        &.is-current {
-          background: var(--socalendar-primary-color);
-          color: var(--socalendar-white-color);
-
-          &.is-start {
-            border-radius: var(--socalendar-border-radius-content) 0 0 var(--socalendar-border-radius-content);
-          }
-
-          &.is-in-range {
-            border-radius: 0;
-            box-shadow: 2px 0 0 var(--socalendar-primary-color), -2px 0 0 var(--socalendar-primary-color);
-          }
-
-          &.is-end {
-            border-radius: 0 var(--socalendar-border-radius-content) var(--socalendar-border-radius-content) 0;
-          }
-
-          &:hover {
-            background: var(--socalendar-primary-dark);
-            color: var(--socalendar-white-color);
-          }
-        }
-
-        &.is-min-date:after,
-        &.is-max-date:after {
-          content: "";
-          position: absolute;
-          top: 30%;
-          width: 2px;
-          background: var(--socalendar-primary-color);
-          height: 40%;
-        }
-
-        &.is-min-date:after {
-          left: 1px;
-        }
-
-        &.is-max-date:after {
-          right: 1px;
-        }
       }
     }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .socalendar, 
-  .socalendar-inner {
-    transition: none;
+  .socalendar,
+  .socalendar *,
+  .socalendar::backdrop {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }

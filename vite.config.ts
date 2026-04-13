@@ -5,7 +5,6 @@ export default defineConfig({
   base: "./",
   build: {
     outDir: "../docs",
-    emptyOutDir: true,
     rollupOptions: {
       output: {
         entryFileNames: "assets/[name].js",
@@ -14,4 +13,7 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    host: true
+  }
 });
