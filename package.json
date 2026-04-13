@@ -6,7 +6,7 @@
     "vite": "^7.3.1"
   },
   "name": "socalendar",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "soCalendar is a beautiful & simple calendar date picker in TypeScript designed to be beautifully simple, intuitive and lightweight.",
   "main": "./dist/js/socalendar.cjs",
   "module": "./dist/js/socalendar.esm.js",
