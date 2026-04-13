@@ -282,13 +282,13 @@ export default class SoCalendar {
       this.confirmBtn = dialog.querySelector("#soCalendar-confirm")!;
     
       // Add keyboard event listeners for accessiblity
-      this.dialog.addEventListener('keydown', (event) => {
+      this.dialog.addEventListener('keydown', (event: KeyboardEvent) => {
         console.log("dialog.addEventListener('keydown')", event.key);
 
-        const currentButton = event.target;
-        const day = parseInt(currentButton.dataset.day);
-        const month = parseInt(currentButton.dataset.month);
-        const year = parseInt(currentButton.dataset.year);
+        const currentButton = event.target as HTMLButtonElement;
+        const day = currentButton.dataset.day ? parseInt(currentButton.dataset.day) : null;
+        const month = currentButton.dataset.month ? parseInt(currentButton.dataset.month) : null;
+        const year = currentButton.dataset.year ? parseInt(currentButton.dataset.year) : null;
 
         switch (event.key) {
           case 'PageUp':
@@ -322,8 +322,9 @@ export default class SoCalendar {
               this.focusFirstButton();
               return;
             };
+            if (day === null || month === null || year === null) return;
             const nextDate = new Date(year, month, day + 1);
-            const nextButton = this.contentCurrent.querySelector(`button.socalendar-button[data-year="${nextDate.getFullYear()}"][data-month="${nextDate.getMonth()}"][data-day="${nextDate.getDate()}"]`);
+            const nextButton = this.contentCurrent.querySelector<HTMLButtonElement>(`button.socalendar-button[data-year="${nextDate.getFullYear()}"][data-month="${nextDate.getMonth()}"][data-day="${nextDate.getDate()}"]`);
             if (nextButton) {
               nextButton.focus();
             } else {
@@ -338,8 +339,9 @@ export default class SoCalendar {
               this.focusLastButton();
               return;
             };
+            if (day === null || month === null || year === null) return;
             const prevDate = new Date(year, month, day - 1);
-            const prevButton = this.contentCurrent.querySelector(`button.socalendar-button[data-year="${prevDate.getFullYear()}"][data-month="${prevDate.getMonth()}"][data-day="${prevDate.getDate()}"]`);
+            const prevButton = this.contentCurrent.querySelector<HTMLButtonElement>(`button.socalendar-button[data-year="${prevDate.getFullYear()}"][data-month="${prevDate.getMonth()}"][data-day="${prevDate.getDate()}"]`);
             if (prevButton) {
               prevButton.focus();
             } else {
@@ -354,8 +356,9 @@ export default class SoCalendar {
               this.focusFirstButton();
               return;
             };
+            if (day === null || month === null || year === null) return;
             const nextWeek = new Date(year, month, day + 7);
-            const nextWeekButton = this.contentCurrent.querySelector(`button.socalendar-button[data-year="${nextWeek.getFullYear()}"][data-month="${nextWeek.getMonth()}"][data-day="${nextWeek.getDate()}"]`);
+            const nextWeekButton = this.contentCurrent.querySelector<HTMLButtonElement>(`button.socalendar-button[data-year="${nextWeek.getFullYear()}"][data-month="${nextWeek.getMonth()}"][data-day="${nextWeek.getDate()}"]`);
             if (nextWeekButton) {
               nextWeekButton.focus();
             } else {
@@ -370,8 +373,9 @@ export default class SoCalendar {
               this.focusLastButton();
               return;
             };
+            if (day === null || month === null || year === null) return;
             const prevWeek = new Date(year, month, day - 7);
-            const prevWeekButton = this.contentCurrent.querySelector(`button.socalendar-button[data-year="${prevWeek.getFullYear()}"][data-month="${prevWeek.getMonth()}"][data-day="${prevWeek.getDate()}"]`);
+            const prevWeekButton = this.contentCurrent.querySelector<HTMLButtonElement>(`button.socalendar-button[data-year="${prevWeek.getFullYear()}"][data-month="${prevWeek.getMonth()}"][data-day="${prevWeek.getDate()}"]`);
             if (prevWeekButton) {
               prevWeekButton.focus();
             } else {
@@ -482,12 +486,12 @@ export default class SoCalendar {
 
 
   private focusFirstButton(): void {
-    const buttons = this.contentCurrent.querySelectorAll('button.socalendar-button:not(:disabled)');
+    const buttons = this.contentCurrent.querySelectorAll<HTMLButtonElement>('button.socalendar-button:not(:disabled)');
     if (buttons) buttons[0].focus();    
   }
 
   private focusLastButton(): void {
-    const buttons = this.contentCurrent.querySelectorAll('button.socalendar-button:not(:disabled)');
+    const buttons = this.contentCurrent.querySelectorAll<HTMLButtonElement>('button.socalendar-button:not(:disabled)');
     if (buttons) buttons[buttons.length - 1].focus();
   }
 
